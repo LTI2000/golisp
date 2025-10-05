@@ -13,8 +13,15 @@ type symbol struct {
 	name string
 }
 
+var symbols map[string]*symbol = make(map[string]*symbol)
+
 func Symbol(name string) Value {
-	return &symbol{name}
+	value, ok := symbols[name]
+	if !ok {
+		value = &symbol{name}
+		symbols[name] = value
+	}
+	return value
 }
 
 func (*symbol) Atom() bool {
