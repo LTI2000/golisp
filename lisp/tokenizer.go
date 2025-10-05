@@ -2,6 +2,7 @@ package lisp
 
 import (
 	"bufio"
+	"errors"
 	"io"
 	"unicode"
 )
@@ -11,6 +12,7 @@ type TokenType int
 const (
 	LeftParen TokenType = iota
 	RightParen
+	Identifier
 )
 
 type Token struct {
@@ -27,32 +29,48 @@ func NewTokenizer(reader io.Reader) *Tokenizer {
 }
 
 func (t *Tokenizer) NextToken() (*Token, error) {
-	err := skipSpace(t)
-	if err != nil {
+	if err := skipSpace(t); err != nil {
 		return nil, err
 	}
-	char, _, err := t.reader.ReadRune()
-	if err != nil {
+
+	if char, _, err := t.reader.ReadRune(); err != nil {
 		return nil, err
+	} else if char == '(' {
+		return &Token{LeftParen, string(char)}, nil
+	} else if char == ')' {
+		return &Token{RightParen, string(char)}, nil
+	} else if unicode.IsLetter(char) {
+		t.buffer = append([]rune(nil), char)
+		if err := readIdentifier(t); err != nil {
+			return nil, err
+		}
+		return &Token{Identifier, string(t.buffer)}, nil
+	} else {
+		return nil, errors.New("illegal token")
 	}
-	switch char {
-	case '(':
-		return &Token{LeftParen, "("}, nil
-	case ')':
-		return &Token{RightParen, ")"}, nil
-	}
-	return nil, nil
 }
 
 func skipSpace(t *Tokenizer) error {
 	for {
-		char, _, err := t.reader.ReadRune()
-		if err != nil {
+		if char, _, err := t.reader.ReadRune(); err != nil {
 			return err
+		} else if !unicode.IsSpace(char) {
+			if err := t.reader.UnreadRune(); err != nil {
+				return err
+			}
+			return nil
 		}
-		if !unicode.IsSpace(char) {
-			err := t.reader.UnreadRune()
-			if err != nil {
+	}
+}
+
+func readIdentifier(t *Tokenizer) error {
+	for {
+		if char, _, err := t.reader.ReadRune(); err != nil {
+			return err
+		} else if unicode.IsLetter(char) || unicode.IsNumber(char) {
+			t.buffer = append(t.buffer, char)
+		} else {
+			if err := t.reader.UnreadRune(); err != nil {
 				return err
 			}
 			return nil
