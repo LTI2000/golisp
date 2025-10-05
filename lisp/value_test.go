@@ -4,6 +4,15 @@ import (
 	"testing"
 )
 
+func TestSymbolIdentity(t *testing.T) {
+	if Symbol("a") != Symbol("a") {
+		t.Errorf("same symbols are not identical")
+	}
+	if Symbol("a") == Symbol("b") {
+		t.Errorf("different symbols are identical")
+	}
+}
+
 func TestSymbolAtom(t *testing.T) {
 	value := Symbol("sym")
 	actual := value.Atom()
