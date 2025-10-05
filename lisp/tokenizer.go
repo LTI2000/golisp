@@ -53,7 +53,11 @@ func (t *Tokenizer) NextToken() (*Token, error) {
 func skipSpace(t *Tokenizer) error {
 	for {
 		if char, _, err := t.reader.ReadRune(); err != nil {
-			return err
+			if errors.Is(err, io.EOF) {
+				return nil
+			} else {
+				return err
+			}
 		} else if !unicode.IsSpace(char) {
 			return t.reader.UnreadRune()
 		}
@@ -63,7 +67,11 @@ func skipSpace(t *Tokenizer) error {
 func readIdentifier(t *Tokenizer) error {
 	for {
 		if char, _, err := t.reader.ReadRune(); err != nil {
-			return err
+			if errors.Is(err, io.EOF) {
+				return nil
+			} else {
+				return err
+			}
 		} else if unicode.IsLetter(char) || unicode.IsNumber(char) {
 			t.buffer = append(t.buffer, char)
 		} else {
