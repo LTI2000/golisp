@@ -13,6 +13,7 @@ const (
 	LeftParen TokenType = iota
 	RightParen
 	Identifier
+	Eof
 )
 
 type Token struct {
@@ -34,7 +35,11 @@ func (t *Tokenizer) NextToken() (*Token, error) {
 	}
 
 	if char, _, err := t.reader.ReadRune(); err != nil {
-		return nil, err
+		if errors.Is(err, io.EOF) {
+			return &Token{Eof, ""}, nil
+		} else {
+			return nil, err
+		}
 	} else if char == '(' {
 		return &Token{LeftParen, string(char)}, nil
 	} else if char == ')' {
