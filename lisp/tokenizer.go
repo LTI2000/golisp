@@ -55,10 +55,7 @@ func skipSpace(t *Tokenizer) error {
 		if char, _, err := t.reader.ReadRune(); err != nil {
 			return err
 		} else if !unicode.IsSpace(char) {
-			if err := t.reader.UnreadRune(); err != nil {
-				return err
-			}
-			return nil
+			return t.reader.UnreadRune()
 		}
 	}
 }
@@ -70,10 +67,7 @@ func readIdentifier(t *Tokenizer) error {
 		} else if unicode.IsLetter(char) || unicode.IsNumber(char) {
 			t.buffer = append(t.buffer, char)
 		} else {
-			if err := t.reader.UnreadRune(); err != nil {
-				return err
-			}
-			return nil
+			return t.reader.UnreadRune()
 		}
 	}
 }
