@@ -12,6 +12,7 @@ type TokenType int
 const (
 	LeftParen TokenType = iota
 	RightParen
+	Apostrophe
 	Identifier
 	Eof
 )
@@ -44,6 +45,8 @@ func (t *Tokenizer) NextToken() (*Token, error) {
 		return &Token{LeftParen, string(char)}, nil
 	} else if char == ')' {
 		return &Token{RightParen, string(char)}, nil
+	} else if char == '\'' {
+		return &Token{Apostrophe, string(char)}, nil
 	} else if unicode.IsLetter(char) {
 		t.buffer = append([]rune(nil), char)
 		if err := readIdentifier(t); err != nil {
