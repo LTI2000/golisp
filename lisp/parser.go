@@ -33,6 +33,17 @@ func (p *Parser) pushToken(token *Token) {
 	p.tokenStack = append(p.tokenStack, token)
 }
 
+func (p *Parser) peekToken(tt TokenType) (bool, error) {
+	if token, err := p.nextToken(); err != nil {
+		return false, err
+	} else if token.Type == tt {
+		return true, nil
+	} else {
+		p.pushToken(token)
+		return false, nil
+	}
+}
+
 func NewParser(t *Tokenizer) *Parser {
 	return &Parser{t, nil}
 }
@@ -60,34 +71,34 @@ func (p *Parser) parseExpression() (Value, error) {
 }
 
 func (p *Parser) parseList() (Value, error) {
-	if token, err := p.nextToken(); err != nil {
-		return nil, err
-	} else if token.Type == RightParen {
-		return Nil, nil
-	} else {
-		p.pushToken(token)
-	}
-
-	car, err := p.parseExpression()
+	isRightParen, err := p.peekToken(RightParen)
 	if err != nil {
 		return nil, err
 	}
-
-	if token, err := p.nextToken(); err != nil {
-		return nil, err
-	} else if token.Type == Dot {
-		cdr, err := p.parseExpression()
-		if err != nil {
-			return nil, err
-		}
-		return Cons(car, cdr), nil
-
-	} else {
-		p.pushToken(token)
-		cdr, err := p.parseList()
-		if err != nil {
-			return nil, err
-		}
-		return Cons(car, cdr), nil
+	if isRightParen {
+		return Nil, nil
 	}
+
+	head, err := p.parseExpression()
+	if err != nil {
+		return nil, err
+	}
+	isDot, err := p.peekToken(Dot)
+	if err != nil {
+		return nil, err
+	}
+	tail, err := p.parseTail(isDot)
+	if err != nil {
+		return nil, err
+	}
+	return Cons(head, tail), nil
+}
+
+func (p *Parser) parseTail(isDot bool) (tail Value, err error) {
+	if isDot {
+		tail, err = p.parseExpression()
+	} else {
+		tail, err = p.parseList()
+	}
+	return
 }
