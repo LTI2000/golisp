@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	lisp.QUOTE(lisp.Symbol("lisp"))
+	lisp.COND(lisp.List(lisp.Nil, lisp.T), lisp.List(lisp.T, lisp.Nil))
 }
