@@ -1,5 +1,7 @@
 package lisp
 
+import "fmt"
+
 func QUOTE(x Value) Value {
 	return x
 }
@@ -24,6 +26,9 @@ func CONS(x Value, y Value) Value {
 	return Cons(x, y)
 }
 
-func COND(cs []Value) Value {
+func COND(clauses ...Value) Value {
+	for _, clause := range clauses {
+		fmt.Printf("%v\n", clause)
+	}
 	panic("unimplemented")
 }
