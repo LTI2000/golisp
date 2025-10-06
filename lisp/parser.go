@@ -71,27 +71,19 @@ func (p *Parser) parseExpression() (Value, error) {
 }
 
 func (p *Parser) parseList() (Value, error) {
-	isRightParen, err := p.peekToken(RightParen)
-	if err != nil {
+	if isRightParen, err := p.peekToken(RightParen); err != nil {
 		return nil, err
-	}
-	if isRightParen {
+	} else if isRightParen {
 		return Nil, nil
-	}
-
-	head, err := p.parseExpression()
-	if err != nil {
+	} else if head, err := p.parseExpression(); err != nil {
 		return nil, err
-	}
-	isDot, err := p.peekToken(Dot)
-	if err != nil {
+	} else if isDot, err := p.peekToken(Dot); err != nil {
 		return nil, err
-	}
-	tail, err := p.parseTail(isDot)
-	if err != nil {
+	} else if tail, err := p.parseTail(isDot); err != nil {
 		return nil, err
+	} else {
+		return Cons(head, tail), nil
 	}
-	return Cons(head, tail), nil
 }
 
 func (p *Parser) parseTail(isDot bool) (tail Value, err error) {
