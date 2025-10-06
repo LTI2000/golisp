@@ -107,10 +107,7 @@ func (c *cons) String() string {
 	cdr := c.GetCdr()
 	sb.WriteString("(")
 	sb.WriteString(c.GetCar().String())
-	for {
-		if cdr.IsAtom() {
-			break
-		}
+	for !cdr.IsAtom() {
 		sb.WriteString(" ")
 		sb.WriteString(cdr.GetCar().String())
 		cdr = cdr.GetCdr()
