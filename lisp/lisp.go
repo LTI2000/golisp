@@ -1,40 +1,29 @@
 package lisp
 
-func Quote(x Value) Value {
+func QUOTE(x Value) Value {
 	return x
 }
 
-func Atom(x Value) Value {
-	if x.Atom() {
-		return Symbol("t")
-	} else {
-		return Symbol("nil")
-	}
+func ATOM(x Value) Value {
+	return BoolSymbol(x.IsAtom())
 }
 
-func Eq(x Value, y Value) Value {
-	if x.Eq(y) {
-		return Symbol("t")
-	} else {
-		return Symbol("nil")
-	}
+func EQ(x Value, y Value) Value {
+	return BoolSymbol(x.IsEq(y))
 }
 
-func Car(x Value) Value {
-	return x.Car()
+func CAR(x Value) Value {
+	return x.GetCar()
 }
 
-func Cdr(x Value) Value {
-	return x.Cdr()
+func CDR(x Value) Value {
+	return x.GetCdr()
 }
 
-func Cons(x Value, y Value) Value {
-	return Pair(x, y)
+func CONS(x Value, y Value) Value {
+	return Cons(x, y)
 }
 
-func Cond(cs []Value) Value {
-	for _, c := range cs {
-		return Atom(c)
-	}
-	return Symbol("nil")
+func COND(cs []Value) Value {
+	panic("unimplemented")
 }
