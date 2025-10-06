@@ -123,10 +123,7 @@ func List(e ...Value) (val Value) {
 }
 
 func Array(list Value) (array []Value) {
-	for {
-		if list == Nil {
-			break
-		}
+	for list != Nil {
 		array = append(array, list.GetCar())
 		list = list.GetCdr()
 	}
