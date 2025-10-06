@@ -6,44 +6,53 @@ import (
 )
 
 func TestNextToken(t *testing.T) {
-	reader := strings.NewReader(" (\t foo123 bar)\n")
+	reader := strings.NewReader(" (\t foo123 bar baz.)\n")
 	tokenizer := NewTokenizer(reader)
 
-	token, err := tokenizer.NextToken()
-	if err != nil {
+	if token, err := tokenizer.NextToken(); err != nil {
 		t.Fatalf("err %v", err)
-	}
-	if token.Type != LeftParen {
-		t.Errorf("expected (")
+	} else if expected, actual := LeftParen, token.Type; expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 
-	token, err = tokenizer.NextToken()
-	if err != nil {
+	if token, err := tokenizer.NextToken(); err != nil {
 		t.Fatalf("err %v", err)
-	}
-	if token.Type != Identifier {
-		t.Errorf("expected Identifier")
-	}
-	if token.Value != "foo123" {
-		t.Errorf("got %v, wanted %v", token.Value, "foo123")
+	} else if expected, actual := Identifier, token.Type; expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	} else if expected, actual := "foo123", token.Value; expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 
-	token, err = tokenizer.NextToken()
-	if err != nil {
+	if token, err := tokenizer.NextToken(); err != nil {
 		t.Fatalf("err %v", err)
-	}
-	if token.Type != Identifier {
-		t.Errorf("expected Identifier")
-	}
-	if token.Value != "bar" {
-		t.Errorf("got %v, wanted %v", token.Value, "bar")
+	} else if expected, actual := Identifier, token.Type; expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	} else if expected, actual := "bar", token.Value; expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 
-	token, err = tokenizer.NextToken()
-	if err != nil {
+	if token, err := tokenizer.NextToken(); err != nil {
 		t.Fatalf("err %v", err)
+	} else if expected, actual := Identifier, token.Type; expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	} else if expected, actual := "baz.", token.Value; expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
 	}
-	if token.Type != RightParen {
-		t.Errorf("expected )")
+
+	if token, err := tokenizer.NextToken(); err != nil {
+		t.Fatalf("err %v", err)
+	} else if expected, actual := RightParen, token.Type; expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+}
+
+func TestDot(t *testing.T) {
+	reader := strings.NewReader(".")
+	tokenizer := NewTokenizer(reader)
+
+	if token, err := tokenizer.NextToken(); err != nil {
+		t.Fatalf("err %v", err)
+	} else if expected, actual := Dot, token.Type; expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 }

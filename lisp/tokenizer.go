@@ -14,6 +14,7 @@ const (
 	RightParen
 	Apostrophe
 	Identifier
+	Dot
 	Eof
 )
 
@@ -47,12 +48,17 @@ func (t *Tokenizer) NextToken() (*Token, error) {
 		return &Token{RightParen, string(char)}, nil
 	} else if char == '\'' {
 		return &Token{Apostrophe, string(char)}, nil
-	} else if unicode.IsLetter(char) {
+	} else if isIdentifierChar(char) {
 		t.buffer = append([]rune(nil), char)
 		if err := readIdentifier(t); err != nil {
 			return nil, err
 		}
-		return &Token{Identifier, string(t.buffer)}, nil
+		name := string(t.buffer)
+		if name == "." {
+			return &Token{Dot, name}, nil
+		} else {
+			return &Token{Identifier, name}, nil
+		}
 	} else {
 		return nil, errors.New("illegal token")
 	}
@@ -61,11 +67,7 @@ func (t *Tokenizer) NextToken() (*Token, error) {
 func skipSpace(t *Tokenizer) error {
 	for {
 		if char, _, err := t.reader.ReadRune(); err != nil {
-			if errors.Is(err, io.EOF) {
-				return nil
-			} else {
-				return err
-			}
+			return maskEof(err)
 		} else if !unicode.IsSpace(char) {
 			return t.reader.UnreadRune()
 		}
@@ -75,15 +77,23 @@ func skipSpace(t *Tokenizer) error {
 func readIdentifier(t *Tokenizer) error {
 	for {
 		if char, _, err := t.reader.ReadRune(); err != nil {
-			if errors.Is(err, io.EOF) {
-				return nil
-			} else {
-				return err
-			}
-		} else if unicode.IsLetter(char) || unicode.IsNumber(char) {
+			return maskEof(err)
+		} else if isIdentifierChar(char) || unicode.IsNumber(char) {
 			t.buffer = append(t.buffer, char)
 		} else {
 			return t.reader.UnreadRune()
 		}
+	}
+}
+
+func isIdentifierChar(char rune) bool {
+	return char == '.' || unicode.IsLetter(char)
+}
+
+func maskEof(err error) error {
+	if errors.Is(err, io.EOF) {
+		return nil
+	} else {
+		return err
 	}
 }
