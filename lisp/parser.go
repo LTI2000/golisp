@@ -5,8 +5,32 @@ import (
 )
 
 type Parser struct {
-	tokenizer *Tokenizer
-	lookahead *Token
+	tokenizer  *Tokenizer
+	tokenStack []*Token
+}
+
+func (p *Parser) nextToken() (*Token, error) {
+	if token := p.popToken(); token != nil {
+		return token, nil
+	} else {
+		return p.tokenizer.NextToken()
+	}
+}
+
+func (p *Parser) popToken() *Token {
+	pushbackCount := len(p.tokenStack)
+	if pushbackCount > 0 {
+		token := p.tokenStack[pushbackCount-1]
+		p.tokenStack[pushbackCount-1] = nil
+		p.tokenStack = p.tokenStack[:pushbackCount-1]
+		return token
+	} else {
+		return nil
+	}
+}
+
+func (p *Parser) pushToken(token *Token) {
+	p.tokenStack = append(p.tokenStack, token)
 }
 
 func NewParser(t *Tokenizer) *Parser {
@@ -14,62 +38,56 @@ func NewParser(t *Tokenizer) *Parser {
 }
 
 func (p *Parser) ParseExpression() (Value, error) {
-	if err := p.lexan(); err != nil {
-		return nil, err
-	} else {
-		return p.parseExpression()
-	}
-}
-
-func (p *Parser) lexan() error {
-	if lookahead, err := p.tokenizer.NextToken(); err != nil {
-		return err
-	} else {
-		p.lookahead = lookahead
-		return nil
-	}
+	return p.parseExpression()
 }
 
 func (p *Parser) parseExpression() (Value, error) {
-	if p.lookahead.Type == Identifier {
-		if sym, err := Symbol(p.lookahead.Value), p.lexan(); err != nil {
+	if token, err := p.nextToken(); err != nil {
+		return nil, err
+	} else if token.Type == Identifier {
+		return Symbol(token.Value), nil
+	} else if token.Type == Apostrophe {
+		if exp, err := p.parseExpression(); err != nil {
 			return nil, err
 		} else {
-			return sym, nil
+			return List(Quote, exp), nil
 		}
-	} else if p.lookahead.Type == Apostrophe {
-		if err := p.lexan(); err != nil {
-			return nil, err
-		} else {
-			if exp, err := p.parseExpression(); err != nil {
-				return nil, err
-			} else {
-				return List(Quote, exp), nil
-			}
-		}
-	} else if p.lookahead.Type == LeftParen {
-		if err := p.lexan(); err != nil {
-			return nil, err
-		} else {
-			return p.parseList()
-		}
+	} else if token.Type == LeftParen {
+		return p.parseList()
 	} else {
 		return nil, errors.New("illegal expression")
 	}
 }
 
 func (p *Parser) parseList() (Value, error) {
-	if p.lookahead.Type == RightParen {
-		if err := p.lexan(); err != nil {
-			return nil, err
-		} else {
-			return Nil, nil
-		}
-	} else if car, err := p.parseExpression(); err != nil {
+	if token, err := p.nextToken(); err != nil {
 		return nil, err
-	} else if cdr, err := p.parseList(); err != nil {
-		return nil, err
+	} else if token.Type == RightParen {
+		return Nil, nil
 	} else {
+		p.pushToken(token)
+	}
+
+	car, err := p.parseExpression()
+	if err != nil {
+		return nil, err
+	}
+
+	if token, err := p.nextToken(); err != nil {
+		return nil, err
+	} else if token.Type == Dot {
+		cdr, err := p.parseExpression()
+		if err != nil {
+			return nil, err
+		}
+		return Cons(car, cdr), nil
+
+	} else {
+		p.pushToken(token)
+		cdr, err := p.parseList()
+		if err != nil {
+			return nil, err
+		}
 		return Cons(car, cdr), nil
 	}
 }

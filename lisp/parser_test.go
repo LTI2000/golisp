@@ -94,3 +94,42 @@ func TestParseNestedList(t *testing.T) {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 }
+
+func TestParseDottedList(t *testing.T) {
+	reader := strings.NewReader("(x . y)")
+	tokenizer := NewTokenizer(reader)
+	parser := NewParser(tokenizer)
+
+	if expression, err := parser.ParseExpression(); err != nil {
+		t.Fatalf("err %v", err)
+	} else if expected, actual := Symbol("x"), expression.GetCar(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	} else if expected, actual := Symbol("y"), expression.GetCdr(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+}
+
+func TestParseDottedProperList(t *testing.T) {
+	reader := strings.NewReader("(x . (y . ())")
+	tokenizer := NewTokenizer(reader)
+	parser := NewParser(tokenizer)
+
+	if expression, err := parser.ParseExpression(); err != nil {
+		t.Fatalf("err %v", err)
+	} else if expected, actual := Symbol("x"), expression.GetCar(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	} else if expected, actual := Symbol("y"), expression.GetCdr().GetCar(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+}
+func TestParseLongDottedProperList(t *testing.T) {
+	reader := strings.NewReader("(x . (y . (z . ()))")
+	tokenizer := NewTokenizer(reader)
+	parser := NewParser(tokenizer)
+
+	if expression, err := parser.ParseExpression(); err != nil {
+		t.Fatalf("err %v", err)
+	} else if expected, actual := "(x y z)", expression.String(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+}
