@@ -78,14 +78,6 @@ func Cons(car Value, cdr Value) Value {
 	return &cons{car, cdr}
 }
 
-func List(e ...Value) (val Value) {
-	val = Nil
-	for i := len(e) - 1; i >= 0; i-- {
-		val = Cons(e[i], val)
-	}
-	return
-}
-
 func (*cons) IsAtom() bool {
 	return false
 }
@@ -119,4 +111,24 @@ func (c *cons) String() string {
 	sb.WriteString(")")
 
 	return sb.String()
+}
+
+// Utils
+func List(e ...Value) (val Value) {
+	val = Nil
+	for i := len(e) - 1; i >= 0; i-- {
+		val = Cons(e[i], val)
+	}
+	return
+}
+
+func Array(list Value) (array []Value) {
+	for {
+		if list == Nil {
+			break
+		}
+		array = append(array, list.GetCar())
+		list = list.GetCdr()
+	}
+	return
 }

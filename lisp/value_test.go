@@ -107,3 +107,34 @@ func TestList(t *testing.T) {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 }
+
+func TestArray(t *testing.T) {
+	var array []Value
+
+	array = Array(List())
+	if expected, actual := 0, len(array); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+
+	array = Array(List(T))
+	if expected, actual := 1, len(array); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+	if expected, actual := T, array[0]; expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+
+	array = Array(List(T, Nil, Quote))
+	if expected, actual := 3, len(array); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+	if expected, actual := T, array[0]; expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+	if expected, actual := Nil, array[1]; expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+	if expected, actual := Quote, array[2]; expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+}
