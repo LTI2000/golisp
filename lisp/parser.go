@@ -2,7 +2,6 @@ package lisp
 
 import (
 	"errors"
-	"fmt"
 )
 
 type Parser struct {
@@ -27,7 +26,6 @@ func (p *Parser) lexan() error {
 		return err
 	} else {
 		p.lookahead = lookahead
-		fmt.Printf("lookahead %v\n", p.lookahead)
 		return nil
 	}
 }
@@ -38,6 +36,16 @@ func (p *Parser) parseExpression() (Value, error) {
 			return nil, err
 		} else {
 			return sym, nil
+		}
+	} else if p.lookahead.Type == Apostrophe {
+		if err := p.lexan(); err != nil {
+			return nil, err
+		} else {
+			if exp, err := p.parseExpression(); err != nil {
+				return nil, err
+			} else {
+				return List(Quote, exp), nil
+			}
 		}
 	} else if p.lookahead.Type == LeftParen {
 		if err := p.lexan(); err != nil {
@@ -54,7 +62,7 @@ func (p *Parser) parseList() (Value, error) {
 		if err := p.lexan(); err != nil {
 			return nil, err
 		} else {
-			return Symbol("nil"), nil
+			return Nil, nil
 		}
 	} else if car, err := p.parseExpression(); err != nil {
 		return nil, err
