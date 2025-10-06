@@ -1,12 +1,19 @@
 package lisp
 
+import "strings"
+
 // Value
 type Value interface {
-	Atom() bool
-	Car() Value
-	Cdr() Value
-	Eq(other Value) bool
+	IsAtom() bool
+	GetCar() Value
+	GetCdr() Value
+	IsEq(other Value) bool
+	String() string
 }
+
+var T Value = Symbol("t")
+var Nil Value = Symbol("nil")
+var Quote Value = Symbol("quote")
 
 // Symbol
 type symbol struct {
@@ -24,24 +31,40 @@ func Symbol(name string) Value {
 	return value
 }
 
-func (*symbol) Atom() bool {
+func BoolSymbol(b bool) Value {
+	if b {
+		return T
+	} else {
+		return Nil
+	}
+}
+
+func (*symbol) IsAtom() bool {
 	return true
 }
 
-func (*symbol) Car() Value {
-	panic("car: got symbol")
+func (*symbol) GetCar() Value {
+	panic("GetCar(): got symbol")
 }
 
-func (*symbol) Cdr() Value {
-	panic("cdr: got symbol")
+func (*symbol) GetCdr() Value {
+	panic("GetCdr(): got symbol")
 }
 
-func (sym *symbol) Eq(other Value) bool {
+func (s *symbol) IsEq(other Value) bool {
 	switch v := other.(type) {
 	case *symbol:
-		return sym.name == v.name
+		return s.name == v.name
 	default:
 		return false
+	}
+}
+
+func (s *symbol) String() string {
+	if s == Nil {
+		return "()"
+	} else {
+		return s.name
 	}
 }
 
@@ -51,21 +74,52 @@ type cons struct {
 	cdr Value
 }
 
-func Pair(car Value, cdr Value) Value {
+func Cons(car Value, cdr Value) Value {
 	return &cons{car, cdr}
 }
 
-func (*cons) Atom() bool {
+func List(e ...Value) (val Value) {
+	val = Nil
+	for i := len(e) - 1; i >= 0; i-- {
+		val = Cons(e[i], val)
+	}
+	return
+}
+
+func (*cons) IsAtom() bool {
 	return false
 }
 
-func (pair *cons) Car() Value {
-	return pair.car
+func (c *cons) GetCar() Value {
+	return c.car
 }
 
-func (pair *cons) Cdr() Value {
-	return pair.cdr
+func (c *cons) GetCdr() Value {
+	return c.cdr
 }
-func (pair *cons) Eq(other Value) bool {
+func (c *cons) IsEq(other Value) bool {
 	return false
+}
+
+func (c *cons) String() string {
+	var sb strings.Builder
+
+	cdr := c.GetCdr()
+	sb.WriteString("(")
+	sb.WriteString(c.GetCar().String())
+	for {
+		if cdr.IsAtom() {
+			break
+		}
+		sb.WriteString(" ")
+		sb.WriteString(cdr.GetCar().String())
+		cdr = cdr.GetCdr()
+	}
+	if cdr != Nil {
+		sb.WriteString(" . ")
+		sb.WriteString(cdr.String())
+	}
+	sb.WriteString(")")
+
+	return sb.String()
 }
