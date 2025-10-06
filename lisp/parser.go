@@ -57,6 +57,7 @@ func (p *Parser) parseExpression() (Value, error) {
 		return nil, errors.New("illegal expression")
 	}
 }
+
 func (p *Parser) parseList() (Value, error) {
 	if p.lookahead.Type == RightParen {
 		if err := p.lexan(); err != nil {
