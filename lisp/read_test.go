@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestParseSymbol(t *testing.T) {
+func TestReadSymbol(t *testing.T) {
 	if expression, err := Read("quote"); err != nil {
 		t.Fatalf("err %v", err)
 	} else if expected, actual := Symbol("quote"), expression; expected != actual {
@@ -12,7 +12,7 @@ func TestParseSymbol(t *testing.T) {
 	}
 }
 
-func TestParseQuotation(t *testing.T) {
+func TestReadQuotation(t *testing.T) {
 	if expression, err := Read("'a"); err != nil {
 		t.Fatalf("err %v", err)
 	} else if expected, actual := Quote, expression.GetCar(); expected != actual {
@@ -24,7 +24,7 @@ func TestParseQuotation(t *testing.T) {
 	}
 }
 
-func TestParseEmptyList(t *testing.T) {
+func TestReadEmptyList(t *testing.T) {
 	if expression, err := Read("()"); err != nil {
 		t.Fatalf("err %v", err)
 	} else if expected, actual := Nil, expression; expected != actual {
@@ -32,7 +32,7 @@ func TestParseEmptyList(t *testing.T) {
 	}
 }
 
-func TestParseSingletonList(t *testing.T) {
+func TestReadSingletonList(t *testing.T) {
 	if expression, err := Read("(x)"); err != nil {
 		t.Fatalf("err %v", err)
 	} else if expected, actual := Symbol("x"), expression.GetCar(); expected != actual {
@@ -42,7 +42,7 @@ func TestParseSingletonList(t *testing.T) {
 	}
 }
 
-func TestParseProperList(t *testing.T) {
+func TestReadProperList(t *testing.T) {
 	if expression, err := Read("(x y)"); err != nil {
 		t.Fatalf("err %v", err)
 	} else if expected, actual := Symbol("x"), expression.GetCar(); expected != actual {
@@ -54,7 +54,7 @@ func TestParseProperList(t *testing.T) {
 	}
 }
 
-func TestParseNestedList(t *testing.T) {
+func TestReadNestedList(t *testing.T) {
 	if expression, err := Read("(x (y) z)"); err != nil {
 		t.Fatalf("err %v", err)
 	} else if expected, actual := Symbol("x"), expression.GetCar(); expected != actual {
@@ -70,7 +70,7 @@ func TestParseNestedList(t *testing.T) {
 	}
 }
 
-func TestParseDottedList(t *testing.T) {
+func TestReadDottedList(t *testing.T) {
 	if expression, err := Read("(x . y)"); err != nil {
 		t.Fatalf("err %v", err)
 	} else if expected, actual := Symbol("x"), expression.GetCar(); expected != actual {
@@ -80,7 +80,7 @@ func TestParseDottedList(t *testing.T) {
 	}
 }
 
-func TestParseDottedProperList(t *testing.T) {
+func TestReadDottedProperList(t *testing.T) {
 	if expression, err := Read("(x . (y . ())"); err != nil {
 		t.Fatalf("err %v", err)
 	} else if expected, actual := Symbol("x"), expression.GetCar(); expected != actual {
@@ -89,7 +89,7 @@ func TestParseDottedProperList(t *testing.T) {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 }
-func TestParseLongDottedProperList(t *testing.T) {
+func TestReadLongDottedProperList(t *testing.T) {
 	if expression, err := Read("(x . (y . (z . ()))"); err != nil {
 		t.Fatalf("err %v", err)
 	} else if expected, actual := "(x y z)", expression.String(); expected != actual {
@@ -97,7 +97,7 @@ func TestParseLongDottedProperList(t *testing.T) {
 	}
 }
 
-func FuzzParseExpression(f *testing.F) {
+func FuzzReadExpression(f *testing.F) {
 	for _, seed := range []string{
 		"x", "(x)", "(x y)", "(x . y)", "(x y ...)", "()",
 		"(QUOTE x)", "(ATOM x)", "(EQ x y)", "(CAR x)", "(CDR x)", "(CONS x y)", "(COND ((p e) ...))"} {
