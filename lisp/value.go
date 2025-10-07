@@ -7,7 +7,7 @@ type Value interface {
 	IsAtom() bool
 	GetCar() Value
 	GetCdr() Value
-	IsEq(other Value) bool
+	IsEq(Value) bool
 	String() string
 }
 
@@ -68,7 +68,7 @@ func (s *symbol) String() string {
 	}
 }
 
-// Cons
+// Pair
 type pair struct {
 	head Value
 	tail Value

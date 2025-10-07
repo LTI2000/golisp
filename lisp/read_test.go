@@ -108,7 +108,7 @@ func TestReadError(t *testing.T) {
 func FuzzReadvalue(f *testing.F) {
 	for _, seed := range []string{
 		"x", "(x)", "(x y)", "(x . y)", "(x y ...)", "()",
-		"(QUOTE x)", "(ATOM x)", "(EQ x y)", "(CAR x)", "(CDR x)", "(CONS x y)", "(COND ((p e) ...))"} {
+		"(QUOTE x)", "(ATOM x)", "(EQ x y)", "(CAR x)", "(CDR x)", "(CONS x y)", "(COND (p e) ...)"} {
 		f.Add(seed)
 	}
 	f.Fuzz(func(t *testing.T, in string) {
