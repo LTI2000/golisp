@@ -108,33 +108,33 @@ func TestList(t *testing.T) {
 	}
 }
 
-func TestArray(t *testing.T) {
-	var array []Value
+func TestSlice(t *testing.T) {
+	var slice []Value
 
-	array = Array(List())
-	if expected, actual := 0, len(array); expected != actual {
-		t.Errorf("expected %v, actual %v", expected, actual)
-	}
-
-	array = Array(List(T))
-	if expected, actual := 1, len(array); expected != actual {
-		t.Errorf("expected %v, actual %v", expected, actual)
-	}
-	if expected, actual := T, array[0]; expected != actual {
+	slice = Slice(List())
+	if expected, actual := 0, len(slice); expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 
-	array = Array(List(T, Nil, Quote))
-	if expected, actual := 3, len(array); expected != actual {
+	slice = Slice(List(T))
+	if expected, actual := 1, len(slice); expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
-	if expected, actual := T, array[0]; expected != actual {
+	if expected, actual := T, slice[0]; expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
-	if expected, actual := Nil, array[1]; expected != actual {
+
+	slice = Slice(List(T, Nil, Quote))
+	if expected, actual := 3, len(slice); expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
-	if expected, actual := Quote, array[2]; expected != actual {
+	if expected, actual := T, slice[0]; expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+	if expected, actual := Nil, slice[1]; expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+	if expected, actual := Quote, slice[2]; expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 }

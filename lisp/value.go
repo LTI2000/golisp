@@ -114,17 +114,17 @@ func (p *pair) String() string {
 }
 
 // Utils
-func List(vs ...Value) Value {
-	val := Nil
-	for i := len(vs) - 1; i >= 0; i-- {
-		val = Pair(vs[i], val)
+func List(slice ...Value) Value {
+	list := Nil
+	for i := len(slice) - 1; i >= 0; i-- {
+		list = Pair(slice[i], list)
 	}
-	return val
+	return list
 }
 
-func Array(list Value) (array []Value) {
+func Slice(list Value) (slice []Value) {
 	for list != Nil {
-		array = append(array, list.GetCar())
+		slice = append(slice, list.GetCar())
 		list = list.GetCdr()
 	}
 	return
