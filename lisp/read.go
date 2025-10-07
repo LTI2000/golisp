@@ -49,49 +49,49 @@ func NewParser(t *Tokenizer) *Parser {
 	return &Parser{t, nil}
 }
 
-func (p *Parser) ParseExpression() (Value, error) {
-	return p.parseExpression()
+func (p *Parser) ReadExpression() (Value, error) {
+	return p.readExpression()
 }
 
-func (p *Parser) parseExpression() (Value, error) {
+func (p *Parser) readExpression() (Value, error) {
 	if token, err := p.nextToken(); err != nil {
 		return nil, err
 	} else if token.Type == Identifier {
 		return Symbol(token.Value), nil
 	} else if token.Type == Apostrophe {
-		if exp, err := p.parseExpression(); err != nil {
+		if exp, err := p.readExpression(); err != nil {
 			return nil, err
 		} else {
 			return List(Quote, exp), nil
 		}
 	} else if token.Type == LeftParen {
-		return p.parseList()
+		return p.readList()
 	} else {
 		return nil, errors.New("illegal expression")
 	}
 }
 
-func (p *Parser) parseList() (Value, error) {
+func (p *Parser) readList() (Value, error) {
 	if isRightParen, err := p.peekToken(RightParen); err != nil {
 		return nil, err
 	} else if isRightParen {
 		return Nil, nil
-	} else if head, err := p.parseExpression(); err != nil {
+	} else if head, err := p.readExpression(); err != nil {
 		return nil, err
 	} else if isDot, err := p.peekToken(Dot); err != nil {
 		return nil, err
-	} else if tail, err := p.parseTail(isDot); err != nil {
+	} else if tail, err := p.readTail(isDot); err != nil {
 		return nil, err
 	} else {
 		return Pair(head, tail), nil
 	}
 }
 
-func (p *Parser) parseTail(isDot bool) (tail Value, err error) {
+func (p *Parser) readTail(isDot bool) (tail Value, err error) {
 	if isDot {
-		tail, err = p.parseExpression()
+		tail, err = p.readExpression()
 	} else {
-		tail, err = p.parseList()
+		tail, err = p.readList()
 	}
 	return
 }
