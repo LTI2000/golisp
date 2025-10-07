@@ -56,3 +56,14 @@ func TestDot(t *testing.T) {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 }
+
+func TestEmptyInput(t *testing.T) {
+	reader := strings.NewReader("")
+	tokenizer := NewTokenizer(reader)
+
+	if token, err := tokenizer.NextToken(); err != nil {
+		t.Fatalf("err %v", err)
+	} else if expected, actual := Eof, token.Type; expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+}
