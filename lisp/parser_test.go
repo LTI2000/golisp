@@ -133,3 +133,22 @@ func TestParseLongDottedProperList(t *testing.T) {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 }
+
+func FuzzParseExpression(f *testing.F) {
+	for _, seed := range []string{
+		"x", "(x)", "(x y)", "(x . y)", "(x y ...)", "()",
+		"(QUOTE x)", "(ATOM x)", "(EQ x y)", "(CAR x)", "(CDR x)", "(CONS x y)", "(COND ((p e) ...))"} {
+		f.Add(seed)
+	}
+	f.Fuzz(func(t *testing.T, in string) {
+		reader := strings.NewReader(in)
+		tokenizer := NewTokenizer(reader)
+		parser := NewParser(tokenizer)
+
+		if expression, err := parser.ParseExpression(); err != nil {
+			t.Fatalf("err %v", err)
+		} else if expected, actual := in, expression.String(); expected != actual {
+			t.Errorf("expected %v, actual %v", expected, actual)
+		}
+	})
+}
