@@ -23,7 +23,7 @@ func CDR(x Value) Value {
 }
 
 func CONS(x Value, y Value) Value {
-	return Cons(x, y)
+	return Pair(x, y)
 }
 
 func COND(clauses ...Value) Value {

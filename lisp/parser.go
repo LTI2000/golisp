@@ -83,7 +83,7 @@ func (p *Parser) parseList() (Value, error) {
 	} else if tail, err := p.parseTail(isDot); err != nil {
 		return nil, err
 	} else {
-		return Cons(head, tail), nil
+		return Pair(head, tail), nil
 	}
 }
 

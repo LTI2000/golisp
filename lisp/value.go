@@ -69,36 +69,36 @@ func (s *symbol) String() string {
 }
 
 // Cons
-type cons struct {
-	car Value
-	cdr Value
+type pair struct {
+	head Value
+	tail Value
 }
 
-func Cons(car Value, cdr Value) Value {
-	return &cons{car, cdr}
+func Pair(head Value, tail Value) Value {
+	return &pair{head, tail}
 }
 
-func (*cons) IsAtom() bool {
+func (*pair) IsAtom() bool {
 	return false
 }
 
-func (c *cons) GetCar() Value {
-	return c.car
+func (p *pair) GetCar() Value {
+	return p.head
 }
 
-func (c *cons) GetCdr() Value {
-	return c.cdr
+func (p *pair) GetCdr() Value {
+	return p.tail
 }
-func (c *cons) IsEq(other Value) bool {
+func (p *pair) IsEq(other Value) bool {
 	return false
 }
 
-func (c *cons) String() string {
+func (p *pair) String() string {
 	var sb strings.Builder
 
-	cdr := c.GetCdr()
+	cdr := p.GetCdr()
 	sb.WriteString("(")
-	sb.WriteString(c.GetCar().String())
+	sb.WriteString(p.GetCar().String())
 	for !cdr.IsAtom() {
 		sb.WriteString(" ")
 		sb.WriteString(cdr.GetCar().String())
@@ -114,12 +114,12 @@ func (c *cons) String() string {
 }
 
 // Utils
-func List(e ...Value) (val Value) {
-	val = Nil
-	for i := len(e) - 1; i >= 0; i-- {
-		val = Cons(e[i], val)
+func List(vs ...Value) Value {
+	val := Nil
+	for i := len(vs) - 1; i >= 0; i-- {
+		val = Pair(vs[i], val)
 	}
-	return
+	return val
 }
 
 func Array(list Value) (array []Value) {
