@@ -7,7 +7,7 @@ func TestMatch(t *testing.T) {
 		t.Fatalf("err %v", err)
 	} else if value, err := Read("nil"); err != nil {
 		t.Fatalf("err %v", err)
-	} else if expected, actual := true, match(pattern, value); expected != actual {
+	} else if expected, actual := true, NewPattern(pattern).Match(value); expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 }
