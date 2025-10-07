@@ -1,8 +1,6 @@
 package lisp
 
-import (
-	"errors"
-)
+import "fmt"
 
 type Reader struct {
 	scanner    *Scanner
@@ -49,17 +47,13 @@ func NewReader(t *Scanner) *Reader {
 	return &Reader{t, nil}
 }
 
-func (r *Reader) ReadExpression() (Value, error) {
-	return r.readExpression()
-}
-
-func (r *Reader) readExpression() (Value, error) {
+func (r *Reader) ReadValue() (Value, error) {
 	if token, err := r.nextToken(); err != nil {
 		return nil, err
 	} else if token.Type == Identifier {
 		return Symbol(token.Value), nil
 	} else if token.Type == Apostrophe {
-		if exp, err := r.readExpression(); err != nil {
+		if exp, err := r.ReadValue(); err != nil {
 			return nil, err
 		} else {
 			return List(Quote, exp), nil
@@ -67,7 +61,7 @@ func (r *Reader) readExpression() (Value, error) {
 	} else if token.Type == LeftParen {
 		return r.readList()
 	} else {
-		return nil, errors.New("illegal expression")
+		return nil, fmt.Errorf("illegal token: '%v'", token)
 	}
 }
 
@@ -76,7 +70,7 @@ func (r *Reader) readList() (Value, error) {
 		return nil, err
 	} else if isRightParen {
 		return Nil, nil
-	} else if head, err := r.readExpression(); err != nil {
+	} else if head, err := r.ReadValue(); err != nil {
 		return nil, err
 	} else if isDot, err := r.peekToken(Dot); err != nil {
 		return nil, err
@@ -89,7 +83,7 @@ func (r *Reader) readList() (Value, error) {
 
 func (r *Reader) readTail(isDot bool) (tail Value, err error) {
 	if isDot {
-		tail, err = r.readExpression()
+		tail, err = r.ReadValue()
 	} else {
 		tail, err = r.readList()
 	}

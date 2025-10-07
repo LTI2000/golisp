@@ -22,6 +22,11 @@ type Token struct {
 	Type  TokenType
 	Value string
 }
+
+func (t *Token) String() string {
+	return t.Value
+}
+
 type Scanner struct {
 	reader bufio.Reader
 	buffer []rune
