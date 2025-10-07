@@ -5,7 +5,7 @@ import (
 )
 
 type Reader struct {
-	tokenizer  *Tokenizer
+	scanner    *Scanner
 	tokenStack []*Token
 }
 
@@ -13,7 +13,7 @@ func (r *Reader) nextToken() (*Token, error) {
 	if token := r.popToken(); token != nil {
 		return token, nil
 	} else {
-		return r.tokenizer.NextToken()
+		return r.scanner.NextToken()
 	}
 }
 
@@ -45,7 +45,7 @@ func (r *Reader) peekToken(tokenType TokenType) (bool, error) {
 	}
 }
 
-func NewReader(t *Tokenizer) *Reader {
+func NewReader(t *Scanner) *Reader {
 	return &Reader{t, nil}
 }
 

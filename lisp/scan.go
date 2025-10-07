@@ -22,21 +22,21 @@ type Token struct {
 	Type  TokenType
 	Value string
 }
-type Tokenizer struct {
+type Scanner struct {
 	reader bufio.Reader
 	buffer []rune
 }
 
-func NewTokenizer(reader io.Reader) *Tokenizer {
-	return &Tokenizer{*bufio.NewReader(reader), make([]rune, 0, 16)}
+func NewScanner(reader io.Reader) *Scanner {
+	return &Scanner{*bufio.NewReader(reader), make([]rune, 0, 16)}
 }
 
-func (t *Tokenizer) NextToken() (*Token, error) {
-	if err := skipSpace(t); err != nil {
+func (s *Scanner) NextToken() (*Token, error) {
+	if err := skipSpace(s); err != nil {
 		return nil, err
 	}
 
-	if char, _, err := t.reader.ReadRune(); err != nil {
+	if char, _, err := s.reader.ReadRune(); err != nil {
 		if errors.Is(err, io.EOF) {
 			return &Token{Eof, ""}, nil
 		} else {
@@ -49,11 +49,11 @@ func (t *Tokenizer) NextToken() (*Token, error) {
 	} else if char == '\'' {
 		return &Token{Apostrophe, string(char)}, nil
 	} else if isIdentifierChar(char) {
-		t.buffer = append([]rune(nil), char)
-		if err := readIdentifier(t); err != nil {
+		s.buffer = append([]rune(nil), char)
+		if err := readIdentifier(s); err != nil {
 			return nil, err
 		}
-		name := string(t.buffer)
+		name := string(s.buffer)
 		if name == "." {
 			return &Token{Dot, name}, nil
 		} else {
@@ -64,24 +64,24 @@ func (t *Tokenizer) NextToken() (*Token, error) {
 	}
 }
 
-func skipSpace(t *Tokenizer) error {
+func skipSpace(s *Scanner) error {
 	for {
-		if char, _, err := t.reader.ReadRune(); err != nil {
+		if char, _, err := s.reader.ReadRune(); err != nil {
 			return maskEof(err)
 		} else if !unicode.IsSpace(char) {
-			return t.reader.UnreadRune()
+			return s.reader.UnreadRune()
 		}
 	}
 }
 
-func readIdentifier(t *Tokenizer) error {
+func readIdentifier(s *Scanner) error {
 	for {
-		if char, _, err := t.reader.ReadRune(); err != nil {
+		if char, _, err := s.reader.ReadRune(); err != nil {
 			return maskEof(err)
 		} else if isIdentifierChar(char) || unicode.IsNumber(char) {
-			t.buffer = append(t.buffer, char)
+			s.buffer = append(s.buffer, char)
 		} else {
-			return t.reader.UnreadRune()
+			return s.reader.UnreadRune()
 		}
 	}
 }

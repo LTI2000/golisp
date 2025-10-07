@@ -7,7 +7,7 @@ import (
 
 func TestNextToken(t *testing.T) {
 	reader := strings.NewReader(" (\t foo123 bar baz.)\n")
-	tokenizer := NewTokenizer(reader)
+	tokenizer := NewScanner(reader)
 
 	if token, err := tokenizer.NextToken(); err != nil {
 		t.Fatalf("err %v", err)
@@ -48,7 +48,7 @@ func TestNextToken(t *testing.T) {
 
 func TestDot(t *testing.T) {
 	reader := strings.NewReader(".")
-	tokenizer := NewTokenizer(reader)
+	tokenizer := NewScanner(reader)
 
 	if token, err := tokenizer.NextToken(); err != nil {
 		t.Fatalf("err %v", err)
@@ -59,7 +59,7 @@ func TestDot(t *testing.T) {
 
 func TestEmptyInput(t *testing.T) {
 	reader := strings.NewReader("")
-	tokenizer := NewTokenizer(reader)
+	tokenizer := NewScanner(reader)
 
 	if token, err := tokenizer.NextToken(); err != nil {
 		t.Fatalf("err %v", err)
