@@ -6,6 +6,14 @@ func Read(source string) (Value, error) {
 	return NewReader(NewScanner(strings.NewReader(source))).ReadValue()
 }
 
+func Must[A, B any](f func(A) (B, error), a A) B {
+	if b, err := f(a); err != nil {
+		panic(err.Error())
+	} else {
+		return b
+	}
+}
+
 func Compose[A1, B1, A2, B2 any](f func(A1) (B1, error), g func(A2) (B2, error)) func(A1, A2) (B1, B2, error) {
 	var b1 B1
 	var b2 B2

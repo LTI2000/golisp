@@ -3,11 +3,10 @@ package lisp
 import "testing"
 
 func TestMatchSymbol(t *testing.T) {
-	if pattern, err := Read("()"); err != nil {
-		t.Fatalf("err %v", err)
-	} else if value, err := Read("nil"); err != nil {
-		t.Fatalf("err %v", err)
-	} else if bindings, matches := NewPattern(pattern).Match(NewBindings(), value); !matches {
+	pattern := Must(Read, "()")
+	value := Must(Read, "nil")
+
+	if bindings, matches := NewPattern(pattern).Match(NewBindings(), value); !matches {
 		t.Errorf("expected match: %v %v", pattern, value)
 	} else if expected, actual := "{}", bindings.String(); expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)
@@ -51,13 +50,13 @@ func TestMatchVariablePair1(t *testing.T) {
 }
 
 func TestMatchVariablePair2(t *testing.T) {
-	if pattern, err := Read("(X)"); err != nil {
+	if pattern, err := Read("(X Y)"); err != nil {
 		t.Fatalf("err %v", err)
-	} else if value, err := Read("(x)"); err != nil {
+	} else if value, err := Read("(y x)"); err != nil {
 		t.Fatalf("err %v", err)
 	} else if bindings, matches := NewPattern(pattern).Match(NewBindings(), value); !matches {
 		t.Errorf("expected match: %v %v", pattern, value)
-	} else if expected, actual := "{[X=x]}", bindings.String(); expected != actual {
+	} else if expected, actual := "{[Y=x][X=y]}", bindings.String(); expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 }
