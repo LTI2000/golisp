@@ -30,12 +30,21 @@ func TestMatchVariable(t *testing.T) {
 	}
 }
 
-func TestMatchVariablePair(t *testing.T) {
+func TestMatchVariablePair1(t *testing.T) {
 	if pattern, err := Read("(X)"); err != nil {
 		t.Fatalf("err %v", err)
 	} else if value, err := Read("t"); err != nil {
 		t.Fatalf("err %v", err)
 	} else if expected, actual := true, !NewPattern(pattern).Match(value); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+}
+func TestMatchVariablePair2(t *testing.T) {
+	if pattern, err := Read("(X)"); err != nil {
+		t.Fatalf("err %v", err)
+	} else if value, err := Read("(t)"); err != nil {
+		t.Fatalf("err %v", err)
+	} else if expected, actual := true, NewPattern(pattern).Match(value); expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 }
