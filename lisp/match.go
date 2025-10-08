@@ -1,5 +1,9 @@
 package lisp
 
+import (
+	"unicode"
+)
+
 type Pattern interface {
 	Match(Value) bool
 }
@@ -17,7 +21,7 @@ type variablePattern struct {
 }
 
 func (p *variablePattern) Match(Value) bool {
-	return false
+	return true
 }
 
 type pairPattern struct {
@@ -35,8 +39,22 @@ func (p *pairPattern) Match(v Value) bool {
 
 func NewPattern(pattern Value) Pattern {
 	if pattern.IsAtom() {
-		return &symbolPattern{pattern}
+		if isUpperCase(pattern.String()) {
+			return &variablePattern{pattern}
+		} else {
+			return &symbolPattern{pattern}
+		}
 	} else {
 		return &pairPattern{NewPattern(pattern.GetCar()), NewPattern(pattern.GetCdr())}
 	}
+}
+
+// utilities
+func isUpperCase(s string) bool {
+	for _, r := range s {
+		if !unicode.IsUpper(r) {
+			return false
+		}
+	}
+	return true
 }
