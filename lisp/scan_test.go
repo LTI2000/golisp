@@ -67,3 +67,14 @@ func TestEmptyInput(t *testing.T) {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 }
+
+func TestIllegalInput(t *testing.T) {
+	reader := strings.NewReader("@")
+	tokenizer := NewScanner(reader)
+
+	if _, err := tokenizer.NextToken(); err == nil {
+		t.Fatalf("expected err")
+	} else if expected, actual := "illegal token", err.Error(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+}
