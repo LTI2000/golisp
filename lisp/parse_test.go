@@ -18,3 +18,20 @@ func TestParseEqPrimitive(t *testing.T) {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 }
+
+func TestParseCarPrimitive(t *testing.T) {
+	if expected, actual := "(car (quote (a b)))", Must(ParseExpression, Must(Read, "(car '(a b))")).String(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+}
+func TestParseCdrPrimitive(t *testing.T) {
+	if expected, actual := "(cdr (quote (a b)))", Must(ParseExpression, Must(Read, "(cdr '(a b))")).String(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+}
+
+func TestParseConsPrimitive(t *testing.T) {
+	if expected, actual := "(cons (quote a) (quote b))", Must(ParseExpression, Must(Read, "(cons 'a 'b)")).String(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+}

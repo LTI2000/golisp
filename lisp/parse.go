@@ -23,7 +23,7 @@ func ParseExpression(value Value) (Expression, error) {
 		} else if arg0, err := ParseExpression(x); err != nil {
 			return nil, err
 		} else {
-			return &prim_app1{ATOM, arg0}, nil
+			return &prim_app1{ATOM, "atom", arg0}, nil
 		}
 	} else if bindings, matches := eq.Match(NewBindings(), value); matches {
 		if x, err := bindings.Lookup("X"); err != nil {
@@ -35,14 +35,36 @@ func ParseExpression(value Value) (Expression, error) {
 		} else if arg1, err := ParseExpression(y); err != nil {
 			return nil, err
 		} else {
-			return &prim_app2{EQ, arg0, arg1}, nil
+			return &prim_app2{EQ, "eq", arg0, arg1}, nil
 		}
-	} else if _, matches := car.Match(NewBindings(), value); matches {
-		return &prim_app1{CAR, nil}, nil
-	} else if _, matches := cdr.Match(NewBindings(), value); matches {
-		return &prim_app1{CDR, nil}, nil
-	} else if _, matches := cons.Match(NewBindings(), value); matches {
-		return &prim_app2{CONS, nil, nil}, nil
+	} else if bindings, matches := car.Match(NewBindings(), value); matches {
+		if x, err := bindings.Lookup("X"); err != nil {
+			return nil, err
+		} else if arg0, err := ParseExpression(x); err != nil {
+			return nil, err
+		} else {
+			return &prim_app1{CAR, "car", arg0}, nil
+		}
+	} else if bindings, matches := cdr.Match(NewBindings(), value); matches {
+		if x, err := bindings.Lookup("X"); err != nil {
+			return nil, err
+		} else if arg0, err := ParseExpression(x); err != nil {
+			return nil, err
+		} else {
+			return &prim_app1{CDR, "cdr", arg0}, nil
+		}
+	} else if bindings, matches := cons.Match(NewBindings(), value); matches {
+		if x, err := bindings.Lookup("X"); err != nil {
+			return nil, err
+		} else if arg0, err := ParseExpression(x); err != nil {
+			return nil, err
+		} else if y, err := bindings.Lookup("Y"); err != nil {
+			return nil, err
+		} else if arg1, err := ParseExpression(y); err != nil {
+			return nil, err
+		} else {
+			return &prim_app2{CONS, "cons", arg0, arg1}, nil
+		}
 	} else {
 		return nil, errors.New("illegal expression")
 	}
@@ -65,20 +87,22 @@ func (l *literal) String() string {
 // prim_app1
 type prim_app1 struct {
 	prim func(Value) Value
+	name string
 	arg0 Expression
 }
 
 func (p *prim_app1) String() string {
-	return "(atom " + p.arg0.String() + ")"
+	return "(" + p.name + " " + p.arg0.String() + ")"
 }
 
 // prim_app2
 type prim_app2 struct {
 	prim func(Value, Value) Value
+	name string
 	arg0 Expression
 	arg1 Expression
 }
 
 func (p *prim_app2) String() string {
-	return "(eq " + p.arg0.String() + " " + p.arg1.String() + ")"
+	return "(" + p.name + " " + p.arg0.String() + " " + p.arg1.String() + ")"
 }
