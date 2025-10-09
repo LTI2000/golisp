@@ -12,15 +12,31 @@ var cond = NewPattern(Must(Read, "(cond (P E) ...)"))
 
 func ParseExpression(value Value) (Expression, error) {
 	if bindings, matches := quote.Match(NewBindings(), value); matches {
-		if value, err := bindings.Lookup("X"); err != nil {
+		if x, err := bindings.Lookup("X"); err != nil {
 			return nil, err
 		} else {
-			return &literal{value}, nil
+			return &literal{x}, nil
 		}
-	} else if _, matches := atom.Match(NewBindings(), value); matches {
-		return &prim_app1{ATOM, nil}, nil
-	} else if _, matches := eq.Match(NewBindings(), value); matches {
-		return &prim_app2{EQ, nil, nil}, nil
+	} else if bindings, matches := atom.Match(NewBindings(), value); matches {
+		if x, err := bindings.Lookup("X"); err != nil {
+			return nil, err
+		} else if arg0, err := ParseExpression(x); err != nil {
+			return nil, err
+		} else {
+			return &prim_app1{ATOM, arg0}, nil
+		}
+	} else if bindings, matches := eq.Match(NewBindings(), value); matches {
+		if x, err := bindings.Lookup("X"); err != nil {
+			return nil, err
+		} else if arg0, err := ParseExpression(x); err != nil {
+			return nil, err
+		} else if y, err := bindings.Lookup("Y"); err != nil {
+			return nil, err
+		} else if arg1, err := ParseExpression(y); err != nil {
+			return nil, err
+		} else {
+			return &prim_app2{EQ, arg0, arg1}, nil
+		}
 	} else if _, matches := car.Match(NewBindings(), value); matches {
 		return &prim_app1{CAR, nil}, nil
 	} else if _, matches := cdr.Match(NewBindings(), value); matches {
@@ -53,7 +69,7 @@ type prim_app1 struct {
 }
 
 func (p *prim_app1) String() string {
-	panic("unimplemented")
+	return "(atom " + p.arg0.String() + ")"
 }
 
 // prim_app2
@@ -64,5 +80,5 @@ type prim_app2 struct {
 }
 
 func (p *prim_app2) String() string {
-	panic("unimplemented")
+	return "(eq " + p.arg0.String() + " " + p.arg1.String() + ")"
 }
