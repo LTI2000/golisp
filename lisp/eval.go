@@ -4,14 +4,24 @@ func Eval(e Expression) (Value, error) {
 	return e.Eval()
 }
 
-func (e *literal) Eval() (Value, error) {
-	return e.value, nil
+func (l *literal) Eval() (Value, error) {
+	return QUOTE(l.value), nil
 }
 
-func (e *prim_app1) Eval() (Value, error) {
-	panic("NYI")
+func (p *prim_app1) Eval() (Value, error) {
+	if x, err := p.arg0.Eval(); err != nil {
+		return nil, err
+	} else {
+		return p.prim(x), nil
+	}
 }
 
-func (e *prim_app2) Eval() (Value, error) {
-	panic("NYI")
+func (p *prim_app2) Eval() (Value, error) {
+	if x, err := p.arg0.Eval(); err != nil {
+		return nil, err
+	} else if y, err := p.arg1.Eval(); err != nil {
+		return nil, err
+	} else {
+		return p.prim(x, y), nil
+	}
 }
