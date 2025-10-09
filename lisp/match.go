@@ -2,6 +2,7 @@ package lisp
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"unicode"
 )
@@ -61,7 +62,12 @@ func NewPattern(pattern Value) Pattern {
 			return &symbolPattern{pattern}
 		}
 	} else {
-		return &pairPattern{NewPattern(pattern.GetCar()), NewPattern(pattern.GetCdr())}
+		head, tail := pattern.GetCar(), pattern.GetCdr()
+		if tail.String() == "(...)" { // FIXME crude check
+			return &repeatingPattern{NewPattern(head)}
+		} else {
+			return &pairPattern{NewPattern(head), NewPattern(tail)}
+		}
 	}
 }
 
@@ -100,6 +106,27 @@ func (p *pairPattern) Match(b *Bindings, v Value) (*Bindings, bool) {
 		}
 		return b, false
 	}
+}
+
+// repeatingPattern
+type repeatingPattern struct {
+	pattern Pattern
+}
+
+func (p *repeatingPattern) Match(b *Bindings, v Value) (*Bindings, bool) {
+	fmt.Println("REPEAT MATCH")
+	for !v.IsAtom() {
+		head := v.GetCar()
+		v = v.GetCdr()
+		fmt.Println("HEAD " + head.String())
+		_, matches := p.pattern.Match(b, head)
+		if matches {
+			fmt.Println("MATCH " + head.String())
+		} else {
+			return nil, false
+		}
+	}
+	return b, false
 }
 
 // utilities

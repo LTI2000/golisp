@@ -56,3 +56,14 @@ func TestMatchVariablePair2(t *testing.T) {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 }
+
+func TestMatchCond(t *testing.T) {
+	pattern := Must(Read, "(cond (P E) ...)")
+	value := Must(Read, "(cond ('() 't) ('t '()))")
+
+	if bindings, matches := NewPattern(pattern).Match(NewBindings(), value); !matches {
+		t.Errorf("expected match: %v %v", pattern, value)
+	} else if expected, actual := "{[Y=x][X=y]}", bindings.String(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+}
