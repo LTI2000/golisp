@@ -7,6 +7,10 @@ type Reader struct {
 	tokenStack []*Token
 }
 
+func NewReader(t *Scanner) *Reader {
+	return &Reader{t, nil}
+}
+
 func (r *Reader) nextToken() (*Token, error) {
 	if token := r.popToken(); token != nil {
 		return token, nil
@@ -41,10 +45,6 @@ func (r *Reader) peekToken(tokenType TokenType) (bool, error) {
 		r.pushToken(token)
 		return false, nil
 	}
-}
-
-func NewReader(t *Scanner) *Reader {
-	return &Reader{t, nil}
 }
 
 func (r *Reader) ReadValue() (Value, error) {
