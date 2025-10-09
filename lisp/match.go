@@ -1,6 +1,7 @@
 package lisp
 
 import (
+	"errors"
 	"strings"
 	"unicode"
 )
@@ -8,7 +9,7 @@ import (
 // Bindings
 type Bindings struct {
 	parent *Bindings
-	name   Value
+	name   string
 	value  Value
 }
 
@@ -16,8 +17,18 @@ func NewBindings() *Bindings {
 	return &Bindings{}
 }
 
-func (b *Bindings) Extend(name Value, value Value) *Bindings {
+func (b *Bindings) Extend(name string, value Value) *Bindings {
 	return &Bindings{b, name, value}
+}
+
+func (b *Bindings) Lookup(name string) (Value, error) {
+	if name == b.name {
+		return b.value, nil
+	} else if b.parent != nil {
+		return b.parent.Lookup(name)
+	} else {
+		return nil, errors.New(name + " is unbound")
+	}
 }
 
 func (b *Bindings) String() string {
@@ -26,7 +37,7 @@ func (b *Bindings) String() string {
 	sb.WriteString("{")
 	for b.parent != nil {
 		sb.WriteString("[")
-		sb.WriteString(b.name.String())
+		sb.WriteString(b.name)
 		sb.WriteString("=")
 		sb.WriteString(b.value.String())
 		sb.WriteString("]")
@@ -43,8 +54,9 @@ type Pattern interface {
 
 func NewPattern(pattern Value) Pattern {
 	if pattern.IsAtom() {
-		if isUpperCase(pattern.String()) {
-			return &variablePattern{pattern}
+		name := pattern.String()
+		if isUpperCase(name) {
+			return &variablePattern{name}
 		} else {
 			return &symbolPattern{pattern}
 		}
@@ -64,11 +76,11 @@ func (p *symbolPattern) Match(b *Bindings, v Value) (*Bindings, bool) {
 
 // variablePattern
 type variablePattern struct {
-	name Value
+	name string
 }
 
 func (p *variablePattern) Match(b *Bindings, v Value) (*Bindings, bool) {
-	return b.Extend(p.name, v), true // FIXME extend bindings
+	return b.Extend(p.name, v), true
 }
 
 // pairPattern
