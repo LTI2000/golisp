@@ -11,8 +11,12 @@ var cons = NewPattern(Must(Read, "(cons X Y)"))
 var cond = NewPattern(Must(Read, "(cond (P E) ...)"))
 
 func ParseExpression(value Value) (Expression, error) {
-	if _, matches := quote.Match(NewBindings(), value); matches {
-		return &literal{nil}, nil
+	if bindings, matches := quote.Match(NewBindings(), value); matches {
+		if value, err := bindings.Lookup("X"); err != nil {
+			return nil, err
+		} else {
+			return &literal{value}, nil
+		}
 	} else if _, matches := atom.Match(NewBindings(), value); matches {
 		return &prim_app1{ATOM, nil}, nil
 	} else if _, matches := eq.Match(NewBindings(), value); matches {
@@ -30,19 +34,35 @@ func ParseExpression(value Value) (Expression, error) {
 
 // Expression
 type Expression interface {
+	String() string
 }
 
-type literal = struct {
+// literal
+type literal struct {
 	value Value
 }
 
-type prim_app1 = struct {
-	prim func(Value) Value
-	arg0 Value
+func (l *literal) String() string {
+	return "(quote " + l.value.String() + ")"
 }
 
-type prim_app2 = struct {
+// prim_app1
+type prim_app1 struct {
+	prim func(Value) Value
+	arg0 Expression
+}
+
+func (p *prim_app1) String() string {
+	panic("unimplemented")
+}
+
+// prim_app2
+type prim_app2 struct {
 	prim func(Value, Value) Value
-	arg0 Value
-	arg1 Value
+	arg0 Expression
+	arg1 Expression
+}
+
+func (p *prim_app2) String() string {
+	panic("unimplemented")
 }
