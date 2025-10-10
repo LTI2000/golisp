@@ -8,7 +8,7 @@ func Read(source string) (Value, error) {
 
 func Must[A, B any](f func(A) (B, error), a A) B {
 	if b, err := f(a); err != nil {
-		panic(err.Error())
+		panic("Must() failed: " + err.Error())
 	} else {
 		return b
 	}
