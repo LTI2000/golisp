@@ -2,7 +2,6 @@ package lisp
 
 import (
 	"errors"
-	"fmt"
 )
 
 var quote = NewPattern(Must(Read, "(quote X)"))
@@ -69,8 +68,25 @@ func ParseExpression(value Value) (Expression, error) {
 			return &prim_app2{CONS, "cons", arg0, arg1}, nil
 		}
 	} else if bindings, matches := cond.Match(nil, value, false); matches {
-		fmt.Printf("BINDINGS: %v\n", bindings)
-		panic("NYI")
+		if ps, err := Lookup(bindings, "P"); err != nil {
+			return nil, err
+		} else if es, err := Lookup(bindings, "E"); err != nil {
+			return nil, err
+		} else {
+			clauses := []clause(nil)
+			predicates, expressions := Slice(ps), Slice(es)
+			for index, predicate := range predicates {
+				expression := expressions[index]
+				if p, err := ParseExpression(predicate); err != nil {
+					return nil, err
+				} else if e, err := ParseExpression(expression); err != nil {
+					return nil, err
+				} else {
+					clauses = append(clauses, clause{p, e})
+				}
+			}
+			return &conditonal{clauses}, nil
+		}
 	} else {
 		return nil, errors.New("illegal expression: " + value.String())
 	}
