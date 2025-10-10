@@ -77,3 +77,11 @@ func TestEvalConsPrimitive(t *testing.T) {
 		}
 	}
 }
+func TestEvalCondPrimitive(t *testing.T) {
+	{
+		value := Must(Eval, Must(ParseExpression, Must(Read, "(cond ((atom '(a b)) 'no) ('t 'yes))")))
+		if expected, actual := "(a . b)", value.String(); expected != actual {
+			t.Errorf("expected %v, actual %v", expected, actual)
+		}
+	}
+}

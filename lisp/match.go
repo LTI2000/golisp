@@ -12,14 +12,18 @@ type Bindings struct {
 	parent *Bindings
 	name   string
 	value  Value
+	index  Index
 }
+
+type Index = []idx
+type idx struct{ i, n int }
 
 func NewBindings() *Bindings {
 	return &Bindings{}
 }
 
-func (b *Bindings) Extend(name string, value Value) *Bindings {
-	return &Bindings{b, name, value}
+func (b *Bindings) Extend(name string, value Value, index Index) *Bindings {
+	return &Bindings{b, name, value, index}
 }
 
 func (b *Bindings) Lookup(name string) (Value, error) {
@@ -41,6 +45,10 @@ func (b *Bindings) String() string {
 		sb.WriteString(b.name)
 		sb.WriteString("=")
 		sb.WriteString(b.value.String())
+		if b.index != nil {
+			sb.WriteString(" @")
+			sb.WriteString(fmt.Sprintf("%v", b.index))
+		}
 		sb.WriteString("]")
 		b = b.parent
 	}
@@ -50,7 +58,7 @@ func (b *Bindings) String() string {
 
 // Pattern
 type Pattern interface {
-	Match(*Bindings, Value) (*Bindings, bool)
+	Match(*Bindings, Value, Index) (*Bindings, bool)
 }
 
 func NewPattern(pattern Value) Pattern {
@@ -76,7 +84,7 @@ type symbolPattern struct {
 	symbol Value
 }
 
-func (p *symbolPattern) Match(b *Bindings, v Value) (*Bindings, bool) {
+func (p *symbolPattern) Match(b *Bindings, v Value, i Index) (*Bindings, bool) {
 	return b, p.symbol.IsEq(v)
 }
 
@@ -85,8 +93,8 @@ type variablePattern struct {
 	name string
 }
 
-func (p *variablePattern) Match(b *Bindings, v Value) (*Bindings, bool) {
-	return b.Extend(p.name, v), true
+func (p *variablePattern) Match(b *Bindings, v Value, i Index) (*Bindings, bool) {
+	return b.Extend(p.name, v, i), true
 }
 
 // pairPattern
@@ -95,12 +103,12 @@ type pairPattern struct {
 	tail Pattern
 }
 
-func (p *pairPattern) Match(b *Bindings, v Value) (*Bindings, bool) {
+func (p *pairPattern) Match(b *Bindings, v Value, i Index) (*Bindings, bool) {
 	if v.IsAtom() {
 		return b, false
 	} else {
-		if b1, matches := p.head.Match(b, v.GetCar()); matches {
-			if b2, matches := p.tail.Match(b1, v.GetCdr()); matches {
+		if b1, matches := p.head.Match(b, v.GetCar(), i); matches {
+			if b2, matches := p.tail.Match(b1, v.GetCdr(), i); matches {
 				return b2, true
 			}
 		}
@@ -113,20 +121,19 @@ type repeatingPattern struct {
 	pattern Pattern
 }
 
-func (p *repeatingPattern) Match(b *Bindings, v Value) (*Bindings, bool) {
-	fmt.Println("REPEAT MATCH")
-	for !v.IsAtom() {
-		head := v.GetCar()
-		v = v.GetCdr()
-		fmt.Println("HEAD " + head.String())
-		_, matches := p.pattern.Match(b, head)
+func (p *repeatingPattern) Match(b *Bindings, value Value, index Index) (*Bindings, bool) {
+	vs := Slice(value)
+	n := len(vs)
+	for i, v := range vs {
+		b1, matches := p.pattern.Match(b, v, append(index, idx{i, n}))
 		if matches {
-			fmt.Println("MATCH " + head.String())
+			b = b1
 		} else {
 			return nil, false
 		}
+		i++
 	}
-	return b, false
+	return b, true
 }
 
 // utilities
