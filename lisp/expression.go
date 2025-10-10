@@ -69,3 +69,32 @@ func (l *conditonal) String() string {
 
 	return sb.String()
 }
+
+// function
+
+type function struct {
+	args []Value
+	body Expression
+}
+
+func (f *function) String() string {
+	var sb strings.Builder
+
+	sb.WriteString("(lambda ")
+	sb.WriteString(List(f.args...).String())
+	sb.WriteString(" ")
+	sb.WriteString(f.body.String())
+	sb.WriteString(")")
+
+	return sb.String()
+}
+
+// var
+
+type varref struct {
+	name string
+}
+
+func (v *varref) String() string {
+	return v.name
+}

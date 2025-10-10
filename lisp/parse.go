@@ -4,6 +4,7 @@ import (
 	"errors"
 )
 
+// primitives
 var quote = NewPattern(Must(Read, "(quote X)"))
 var atom = NewPattern(Must(Read, "(atom X)"))
 var eq = NewPattern(Must(Read, "(eq X Y)"))
@@ -11,6 +12,9 @@ var car = NewPattern(Must(Read, "(car X)"))
 var cdr = NewPattern(Must(Read, "(cdr X)"))
 var cons = NewPattern(Must(Read, "(cons X Y)"))
 var cond = NewPattern(Must(Read, "(cond (P E) ...)"))
+
+// functions
+var lambda = NewPattern(Must(Read, "(lambda (ARG ...) BODY)"))
 
 func ParseExpression(value Value) (Expression, error) {
 	if bindings, matches := quote.Match(nil, value, false); matches {
@@ -87,6 +91,18 @@ func ParseExpression(value Value) (Expression, error) {
 			}
 			return &conditonal{clauses}, nil
 		}
+	} else if bindings, matches := lambda.Match(nil, value, false); matches {
+		if args, err := Lookup(bindings, "ARG"); err != nil {
+			return nil, err
+		} else if body, err := Lookup(bindings, "BODY"); err != nil {
+			return nil, err
+		} else if e, err := ParseExpression(body); err != nil {
+			return nil, err
+		} else {
+			return &function{Slice(args), e}, nil
+		}
+	} else if value.IsAtom() {
+		return &varref{value.String()}, nil
 	} else {
 		return nil, errors.New("illegal expression: " + value.String())
 	}

@@ -44,3 +44,11 @@ func (c *conditonal) Eval() (Value, error) {
 	}
 	return nil, errors.New("eval: no value")
 }
+
+func (f *function) Eval() (Value, error) {
+	panic("function.Eval(): NYI")
+}
+
+func (v *varref) Eval() (Value, error) {
+	panic("varref.Eval(): NYI")
+}

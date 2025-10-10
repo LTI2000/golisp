@@ -41,3 +41,9 @@ func TestParseCondPrimitive(t *testing.T) {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 }
+
+func TestParseLambda(t *testing.T) {
+	if expected, actual := "(lambda (x) x)", Must(ParseExpression, Must(Read, "(lambda (x) x)")).String(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+}
