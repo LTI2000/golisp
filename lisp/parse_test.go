@@ -35,3 +35,9 @@ func TestParseConsPrimitive(t *testing.T) {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 }
+
+func TestParseCondPrimitive(t *testing.T) {
+	if expected, actual := "(cond ((quote a) (quote b)) ((quote t) (quote u)))", Must(ParseExpression, Must(Read, "(cond ('a 'b) ('t 'u))")).String(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+}
