@@ -114,6 +114,8 @@ func (p *pair) String() string {
 }
 
 // Utils
+
+// create a (possibly empty) List from a Value slice.
 func List(slice ...Value) Value {
 	list := Nil
 	for i := len(slice) - 1; i >= 0; i-- {
@@ -122,10 +124,20 @@ func List(slice ...Value) Value {
 	return list
 }
 
+// create a Value slice from a Value, which must be a list. panics if not.
 func Slice(list Value) (slice []Value) {
 	for list != Nil {
 		slice = append(slice, list.GetCar())
 		list = list.GetCdr()
 	}
 	return
+}
+
+// append two lists. Panics if l1 or l2 is not a list Value
+func Append(l1 Value, l2 Value) Value {
+	if l1 != Nil {
+		return Pair(l1.GetCar(), Append(l1.GetCdr(), l2))
+	} else {
+		return l2
+	}
 }

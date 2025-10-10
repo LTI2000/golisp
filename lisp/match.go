@@ -2,55 +2,54 @@ package lisp
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 	"unicode"
 )
 
 // Bindings
 type Bindings struct {
-	parent *Bindings
-	name   string
-	value  Value
-	index  Index
+	name  string
+	value Value
+	next  *Bindings
 }
 
-type Index = []idx
-type idx struct{ i, n int }
-
-func NewBindings() *Bindings {
-	return &Bindings{}
+func extend(b *Bindings, name string, value Value) *Bindings {
+	return &Bindings{name, value, b} // FIXME add check for duplicate names
 }
 
-func (b *Bindings) Extend(name string, value Value, index Index) *Bindings {
-	return &Bindings{b, name, value, index}
-}
-
-func (b *Bindings) Lookup(name string) (Value, error) {
-	if name == b.name {
-		return b.value, nil
-	} else if b.parent != nil {
-		return b.parent.Lookup(name)
+func extendList(b *Bindings, name string, value Value) *Bindings {
+	if b != nil {
+		if b.name != name {
+			return &Bindings{b.name, b.value, extendList(b.next, name, value)}
+		} else {
+			return &Bindings{b.name, Append(b.value, List(value)), b.next}
+		}
 	} else {
-		return nil, errors.New(name + " is unbound")
+		return &Bindings{name, List(value), b}
 	}
 }
 
-func (b *Bindings) String() string {
+func Lookup(b *Bindings, name string) (Value, error) {
+	if b == nil {
+		return nil, errors.New(name + " is unbound")
+	} else if name == b.name {
+		return b.value, nil
+	} else {
+		return Lookup(b.next, name)
+	}
+}
+
+func String(b *Bindings) string {
 	var sb strings.Builder
 
 	sb.WriteString("{")
-	for b.parent != nil {
+	for b != nil {
 		sb.WriteString("[")
 		sb.WriteString(b.name)
 		sb.WriteString("=")
 		sb.WriteString(b.value.String())
-		if b.index != nil {
-			sb.WriteString(" @")
-			sb.WriteString(fmt.Sprintf("%v", b.index))
-		}
 		sb.WriteString("]")
-		b = b.parent
+		b = b.next
 	}
 	sb.WriteString("}")
 	return sb.String()
@@ -58,7 +57,7 @@ func (b *Bindings) String() string {
 
 // Pattern
 type Pattern interface {
-	Match(*Bindings, Value, Index) (*Bindings, bool)
+	Match(*Bindings, Value, bool) (*Bindings, bool)
 }
 
 func NewPattern(pattern Value) Pattern {
@@ -84,7 +83,7 @@ type symbolPattern struct {
 	symbol Value
 }
 
-func (p *symbolPattern) Match(b *Bindings, v Value, i Index) (*Bindings, bool) {
+func (p *symbolPattern) Match(b *Bindings, v Value, i bool) (*Bindings, bool) {
 	return b, p.symbol.IsEq(v)
 }
 
@@ -93,8 +92,12 @@ type variablePattern struct {
 	name string
 }
 
-func (p *variablePattern) Match(b *Bindings, v Value, i Index) (*Bindings, bool) {
-	return b.Extend(p.name, v, i), true
+func (p *variablePattern) Match(b *Bindings, v Value, i bool) (*Bindings, bool) {
+	if i {
+		return extendList(b, p.name, v), true
+	} else {
+		return extend(b, p.name, v), true
+	}
 }
 
 // pairPattern
@@ -103,7 +106,7 @@ type pairPattern struct {
 	tail Pattern
 }
 
-func (p *pairPattern) Match(b *Bindings, v Value, i Index) (*Bindings, bool) {
+func (p *pairPattern) Match(b *Bindings, v Value, i bool) (*Bindings, bool) {
 	if v.IsAtom() {
 		return b, false
 	} else {
@@ -121,17 +124,15 @@ type repeatingPattern struct {
 	pattern Pattern
 }
 
-func (p *repeatingPattern) Match(b *Bindings, value Value, index Index) (*Bindings, bool) {
-	vs := Slice(value)
-	n := len(vs)
-	for i, v := range vs {
-		b1, matches := p.pattern.Match(b, v, append(index, idx{i, n}))
+func (p *repeatingPattern) Match(b *Bindings, v Value, i bool) (*Bindings, bool) {
+	for !v.IsAtom() {
+		var matches bool
+		b, matches = p.pattern.Match(b, v.GetCar(), true)
 		if matches {
-			b = b1
+			v = v.GetCdr()
 		} else {
 			return nil, false
 		}
-		i++
 	}
 	return b, true
 }
