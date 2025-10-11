@@ -138,3 +138,21 @@ func TestSlice(t *testing.T) {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 }
+
+func TestConcat(t *testing.T) {
+	if expected, actual := "()", Concat(Must(Read, "()")).String(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+	if expected, actual := "(a)", Concat(Must(Read, "((a))")).String(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+	if expected, actual := "(a)", Concat(Must(Read, "(() (a))")).String(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+	if expected, actual := "(a b c)", Concat(Must(Read, "(() (a) (b c))")).String(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+	if expected, actual := "(a b c)", Concat(Must(Read, "(() (a) () (b) () (c))")).String(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+}

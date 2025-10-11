@@ -134,7 +134,7 @@ func Slice(list Value) (slice []Value) {
 }
 
 // append two lists. Panics if l1 or l2 is not a list Value
-func Append(l1 Value, l2 Value) Value {
+func Append(l1, l2 Value) Value {
 	if l1 != Nil {
 		return Pair(l1.GetCar(), Append(l1.GetCdr(), l2))
 	} else {
@@ -142,13 +142,17 @@ func Append(l1 Value, l2 Value) Value {
 	}
 }
 
+func Foldr(f func(Value, Value) Value, z, l Value) Value {
+	if l != Nil {
+		return f(l.GetCar(), Foldr(f, z, l.GetCdr()))
+	} else {
+		return z
+	}
+}
+
+func Concat(l Value) Value {
+	return Foldr(Append, Nil, l)
+}
+
 // concatMap               :: (a -> [b]) -> [a] -> [b]
 // concatMap f             =  foldr ((++) . f) []
-
-// concat :: [[a]] -> [a]
-// concat = foldr (++) []
-
-// foldr k z = go
-//           where
-//             go []     = z
-//             go (y:ys) = y `k` go ys
