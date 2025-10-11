@@ -141,3 +141,14 @@ func Append(l1 Value, l2 Value) Value {
 		return l2
 	}
 }
+
+// concatMap               :: (a -> [b]) -> [a] -> [b]
+// concatMap f             =  foldr ((++) . f) []
+
+// concat :: [[a]] -> [a]
+// concat = foldr (++) []
+
+// foldr k z = go
+//           where
+//             go []     = z
+//             go (y:ys) = y `k` go ys
