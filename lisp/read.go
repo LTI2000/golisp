@@ -1,6 +1,8 @@
 package lisp
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Reader struct {
 	scanner    *Scanner
@@ -47,6 +49,16 @@ func (r *Reader) peekToken(tokenType TokenType) (bool, error) {
 	}
 }
 
+func (r *Reader) matchToken(token TokenType) error {
+	if match, err := r.peekToken(token); err != nil {
+		return err
+	} else if !match {
+		return fmt.Errorf("could not match token: '%v'", token)
+	} else {
+		return nil
+	}
+}
+
 func (r *Reader) ReadValue() (Value, error) {
 	if token, err := r.nextToken(); err != nil {
 		return nil, err
@@ -84,6 +96,10 @@ func (r *Reader) readList() (Value, error) {
 func (r *Reader) readTail(isDot bool) (tail Value, err error) {
 	if isDot {
 		tail, err = r.ReadValue()
+		if err == nil {
+			err = r.matchToken(RightParen)
+		}
+		return
 	} else {
 		tail, err = r.readList()
 	}

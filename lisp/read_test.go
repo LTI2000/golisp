@@ -80,6 +80,16 @@ func TestReadDottedList(t *testing.T) {
 	}
 }
 
+func TestReadDottedListPair(t *testing.T) {
+	if value, err := Read("((x . y) (a . b))"); err != nil {
+		t.Fatalf("err %v", err)
+	} else if expected, actual := Must(Read, "(x . y)").String(), value.GetCar().String(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	} else if expected, actual := Must(Read, "((a . b))").String(), value.GetCdr().String(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+}
+
 func TestReadDottedProperList(t *testing.T) {
 	if value, err := Read("(x . (y . ())"); err != nil {
 		t.Fatalf("err %v", err)

@@ -20,14 +20,8 @@ func repl(r io.Reader) {
 		if value, err := reader.ReadValue(); err != nil {
 			fmt.Printf("read failed: %v\n", err.Error())
 			return
-		} else if expression, err := lisp.ParseExpression(value); err != nil {
-			fmt.Printf("parse failed: %v\n", err.Error())
-			return
-		} else if v, err := lisp.Eval(expression); err != nil {
-			fmt.Printf("eval failed: %v\n", err.Error())
-			return
 		} else {
-			fmt.Printf("; %v\n", v)
+			fmt.Printf("; %v\n", value)
 		}
 	}
 }
