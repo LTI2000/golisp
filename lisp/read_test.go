@@ -34,7 +34,7 @@ func TestRead2(t *testing.T) {
 }
 func TestReadError(t *testing.T) {
 	if _, err := Read(")"); err == nil {
-		t.Fatalf("expetced error")
+		t.Fatalf("expected error")
 	} else if expected, actual := "illegal token: ')'", err.Error(); expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}

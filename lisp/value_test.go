@@ -22,30 +22,22 @@ func TestSymbolAtom(t *testing.T) {
 }
 
 func TestSymbolCar(t *testing.T) {
-	var recovered = false
-	defer func() {
-		if r := recover(); r != nil {
-			recovered = true
-		}
-	}()
 	sym := Symbol("sym")
-	sym.GetCar()
-	if !recovered {
-		t.Errorf("%v", sym)
+	_, err := sym.GetCar()
+	if err == nil {
+		t.Fatalf("expected error")
+	} else if expected, actual := "car: not a cons: sym", err.Error(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 }
 
 func TestSymbolCdr(t *testing.T) {
-	var recovered = false
-	defer func() {
-		if r := recover(); r != nil {
-			recovered = true
-		}
-	}()
 	sym := Symbol("sym")
-	sym.GetCdr()
-	if !recovered {
-		t.Errorf("%v", sym)
+	_, err := sym.GetCdr()
+	if err == nil {
+		t.Fatalf("expected error")
+	} else if expected, actual := "cdr: not a cons: sym", err.Error(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 }
 
@@ -69,7 +61,10 @@ func TestConsAtom(t *testing.T) {
 func TestConsCar(t *testing.T) {
 	car := Symbol("car")
 	value := Cons(car, nil)
-	actual := value.GetCar()
+	actual, err := value.GetCar()
+	if err != nil {
+		t.Fatalf("err %v", err)
+	}
 	if actual != car {
 		t.Errorf("%v", value)
 	}
@@ -78,7 +73,11 @@ func TestConsCar(t *testing.T) {
 func TestConsCdr(t *testing.T) {
 	cdr := Symbol("cdr")
 	value := Cons(nil, cdr)
-	actual := value.GetCdr()
+	actual, err := value.GetCdr()
+	if err != nil {
+		t.Fatalf("err %v", err)
+	}
+
 	if actual != cdr {
 		t.Errorf("%v", value)
 	}

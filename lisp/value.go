@@ -1,12 +1,15 @@
 package lisp
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 // Value
 type Value interface {
 	IsAtom() bool
-	GetCar() Value
-	GetCdr() Value
+	GetCar() (Value, error)
+	GetCdr() (Value, error)
 	IsEq(Value) bool
 	String() string
 }
@@ -31,24 +34,16 @@ func Symbol(name string) Value {
 	return value
 }
 
-func BoolSymbol(b bool) Value {
-	if b {
-		return T
-	} else {
-		return Nil
-	}
-}
-
 func (*symbol) IsAtom() bool {
 	return true
 }
 
-func (*symbol) GetCar() Value {
-	panic("GetCar(): got symbol")
+func (s *symbol) GetCar() (Value, error) {
+	return nil, fmt.Errorf("car: not a cons: %v", s)
 }
 
-func (*symbol) GetCdr() Value {
-	panic("GetCdr(): got symbol")
+func (s *symbol) GetCdr() (Value, error) {
+	return nil, fmt.Errorf("cdr: not a cons: %v", s)
 }
 
 func (s *symbol) IsEq(other Value) bool {
@@ -82,12 +77,12 @@ func (*cons) IsAtom() bool {
 	return false
 }
 
-func (c *cons) GetCar() Value {
-	return c.car
+func (c *cons) GetCar() (Value, error) {
+	return c.car, nil
 }
 
-func (c *cons) GetCdr() Value {
-	return c.cdr
+func (c *cons) GetCdr() (Value, error) {
+	return c.cdr, nil
 }
 func (c *cons) IsEq(other Value) bool {
 	return false
@@ -107,9 +102,9 @@ loop:
 			sb.WriteString(v.car.String())
 			rest = v.cdr
 		case *symbol:
-			if rest != Nil {
+			if v != Nil {
 				sb.WriteString(" . ")
-				sb.WriteString(rest.String())
+				sb.WriteString(v.String())
 			}
 			break loop
 		}
