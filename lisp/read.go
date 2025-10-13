@@ -2,6 +2,8 @@ package lisp
 
 import (
 	"fmt"
+
+	"github.com/LTI2000/golisp/lisp/expression"
 )
 
 type Reader struct {
@@ -59,16 +61,16 @@ func (r *Reader) matchToken(token TokenType) error {
 	}
 }
 
-func (r *Reader) ReadValue() (Value, error) {
+func (r *Reader) ReadValue() (expression.Value, error) {
 	if token, err := r.nextToken(); err != nil {
 		return nil, err
 	} else if token.Type == Identifier {
-		return Symbol(token.Value), nil
+		return expression.Symbol(token.Value), nil
 	} else if token.Type == Apostrophe {
 		if exp, err := r.ReadValue(); err != nil {
 			return nil, err
 		} else {
-			return List(Quote, exp), nil
+			return expression.List(expression.Quote, exp), nil
 		}
 	} else if token.Type == LeftParen {
 		return r.readList()
@@ -77,11 +79,11 @@ func (r *Reader) ReadValue() (Value, error) {
 	}
 }
 
-func (r *Reader) readList() (Value, error) {
+func (r *Reader) readList() (expression.Value, error) {
 	if isRightParen, err := r.peekToken(RightParen); err != nil {
 		return nil, err
 	} else if isRightParen {
-		return Nil, nil
+		return expression.Nil, nil
 	} else if head, err := r.ReadValue(); err != nil {
 		return nil, err
 	} else if isDot, err := r.peekToken(Dot); err != nil {
@@ -89,11 +91,11 @@ func (r *Reader) readList() (Value, error) {
 	} else if tail, err := r.readTail(isDot); err != nil {
 		return nil, err
 	} else {
-		return Cons(head, tail), nil
+		return expression.Cons(head, tail), nil
 	}
 }
 
-func (r *Reader) readTail(isDot bool) (tail Value, err error) {
+func (r *Reader) readTail(isDot bool) (tail expression.Value, err error) {
 	if isDot {
 		tail, err = r.ReadValue()
 		if err == nil {

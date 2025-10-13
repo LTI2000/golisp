@@ -1,4 +1,4 @@
-package lisp
+package expression
 
 import (
 	"testing"
@@ -41,6 +41,18 @@ func TestSymbolCdr(t *testing.T) {
 	}
 }
 
+func TestSymbolEq(t *testing.T) {
+	if !Eq(Symbol("a"), Symbol("a")) {
+		t.Errorf("expected true")
+	}
+	if Eq(Symbol("a"), Symbol("b")) {
+		t.Errorf("expected false")
+	}
+	if Eq(Symbol("a"), Cons(Symbol("a"), Nil)) {
+		t.Errorf("expected false")
+	}
+}
+
 func TestSymbolString(t *testing.T) {
 	if expected, actual := "x", Symbol("x").String(); expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)
@@ -80,6 +92,12 @@ func TestConsCdr(t *testing.T) {
 
 	if actual != cdr {
 		t.Errorf("%v", value)
+	}
+}
+
+func TestConsEq(t *testing.T) {
+	if Eq(Cons(Symbol("a"), Nil), Symbol("a")) {
+		t.Errorf("expected false")
 	}
 }
 

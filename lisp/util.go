@@ -1,8 +1,12 @@
 package lisp
 
-import "strings"
+import (
+	"strings"
 
-func Read(source string) (Value, error) {
+	"github.com/LTI2000/golisp/lisp/expression"
+)
+
+func Read(source string) (expression.Value, error) {
 	return NewReader(NewScanner(strings.NewReader(source))).ReadValue()
 }
 
