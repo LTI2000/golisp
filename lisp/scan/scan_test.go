@@ -1,4 +1,4 @@
-package lisp
+package scan
 
 import (
 	"strings"

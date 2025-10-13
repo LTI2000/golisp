@@ -4,18 +4,19 @@ import (
 	"fmt"
 
 	"github.com/LTI2000/golisp/lisp/expression"
+	"github.com/LTI2000/golisp/lisp/scan"
 )
 
 type Reader struct {
-	scanner    *Scanner
-	tokenStack []*Token
+	scanner    *scan.Scanner
+	tokenStack []*scan.Token
 }
 
-func NewReader(t *Scanner) *Reader {
+func NewReader(t *scan.Scanner) *Reader {
 	return &Reader{t, nil}
 }
 
-func (r *Reader) nextToken() (*Token, error) {
+func (r *Reader) nextToken() (*scan.Token, error) {
 	if token := r.popToken(); token != nil {
 		return token, nil
 	} else {
@@ -23,7 +24,7 @@ func (r *Reader) nextToken() (*Token, error) {
 	}
 }
 
-func (r *Reader) popToken() *Token {
+func (r *Reader) popToken() *scan.Token {
 	pushbackCount := len(r.tokenStack)
 	if pushbackCount > 0 {
 		pushbackCount--
@@ -36,11 +37,11 @@ func (r *Reader) popToken() *Token {
 	}
 }
 
-func (r *Reader) pushToken(token *Token) {
+func (r *Reader) pushToken(token *scan.Token) {
 	r.tokenStack = append(r.tokenStack, token)
 }
 
-func (r *Reader) peekToken(tokenType TokenType) (bool, error) {
+func (r *Reader) peekToken(tokenType scan.TokenType) (bool, error) {
 	if token, err := r.nextToken(); err != nil {
 		return false, err
 	} else if token.Type == tokenType {
@@ -51,7 +52,7 @@ func (r *Reader) peekToken(tokenType TokenType) (bool, error) {
 	}
 }
 
-func (r *Reader) matchToken(token TokenType) error {
+func (r *Reader) matchToken(token scan.TokenType) error {
 	if match, err := r.peekToken(token); err != nil {
 		return err
 	} else if !match {
@@ -64,15 +65,15 @@ func (r *Reader) matchToken(token TokenType) error {
 func (r *Reader) ReadValue() (expression.Value, error) {
 	if token, err := r.nextToken(); err != nil {
 		return nil, err
-	} else if token.Type == Identifier {
+	} else if token.Type == scan.Identifier {
 		return expression.Symbol(token.Value), nil
-	} else if token.Type == Apostrophe {
+	} else if token.Type == scan.Apostrophe {
 		if exp, err := r.ReadValue(); err != nil {
 			return nil, err
 		} else {
 			return expression.List(expression.Quote, exp), nil
 		}
-	} else if token.Type == LeftParen {
+	} else if token.Type == scan.LeftParen {
 		return r.readList()
 	} else {
 		return nil, fmt.Errorf("illegal token: '%v'", token)
@@ -80,13 +81,13 @@ func (r *Reader) ReadValue() (expression.Value, error) {
 }
 
 func (r *Reader) readList() (expression.Value, error) {
-	if isRightParen, err := r.peekToken(RightParen); err != nil {
+	if isRightParen, err := r.peekToken(scan.RightParen); err != nil {
 		return nil, err
 	} else if isRightParen {
 		return expression.Nil, nil
 	} else if head, err := r.ReadValue(); err != nil {
 		return nil, err
-	} else if isDot, err := r.peekToken(Dot); err != nil {
+	} else if isDot, err := r.peekToken(scan.Dot); err != nil {
 		return nil, err
 	} else if tail, err := r.readTail(isDot); err != nil {
 		return nil, err
@@ -99,7 +100,7 @@ func (r *Reader) readTail(isDot bool) (tail expression.Value, err error) {
 	if isDot {
 		tail, err = r.ReadValue()
 		if err == nil {
-			err = r.matchToken(RightParen)
+			err = r.matchToken(scan.RightParen)
 		}
 		return
 	} else {

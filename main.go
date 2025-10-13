@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/LTI2000/golisp/lisp"
+	"github.com/LTI2000/golisp/lisp/scan"
 )
 
 func main() {
@@ -14,7 +15,7 @@ func main() {
 }
 
 func repl(r io.Reader) {
-	scanner := lisp.NewScanner(r)
+	scanner := scan.NewScanner(r)
 	reader := lisp.NewReader(scanner)
 	for {
 		if value, err := reader.ReadValue(); err != nil {

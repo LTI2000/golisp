@@ -4,10 +4,11 @@ import (
 	"strings"
 
 	"github.com/LTI2000/golisp/lisp/expression"
+	"github.com/LTI2000/golisp/lisp/scan"
 )
 
 func Read(source string) (expression.Value, error) {
-	return NewReader(NewScanner(strings.NewReader(source))).ReadValue()
+	return NewReader(scan.NewScanner(strings.NewReader(source))).ReadValue()
 }
 
 func Must[A, B any](f func(A) (B, error), a A) B {
