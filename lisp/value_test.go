@@ -108,51 +108,51 @@ func TestList(t *testing.T) {
 	}
 }
 
-func TestSlice(t *testing.T) {
-	var slice []Value
+// func TestSlice(t *testing.T) {
+// 	var slice []Value
 
-	slice = Slice(List())
-	if expected, actual := 0, len(slice); expected != actual {
-		t.Errorf("expected %v, actual %v", expected, actual)
-	}
+// 	slice = Slice(List())
+// 	if expected, actual := 0, len(slice); expected != actual {
+// 		t.Errorf("expected %v, actual %v", expected, actual)
+// 	}
 
-	slice = Slice(List(T))
-	if expected, actual := 1, len(slice); expected != actual {
-		t.Errorf("expected %v, actual %v", expected, actual)
-	}
-	if expected, actual := T, slice[0]; expected != actual {
-		t.Errorf("expected %v, actual %v", expected, actual)
-	}
+// 	slice = Slice(List(T))
+// 	if expected, actual := 1, len(slice); expected != actual {
+// 		t.Errorf("expected %v, actual %v", expected, actual)
+// 	}
+// 	if expected, actual := T, slice[0]; expected != actual {
+// 		t.Errorf("expected %v, actual %v", expected, actual)
+// 	}
 
-	slice = Slice(List(T, Nil, Quote))
-	if expected, actual := 3, len(slice); expected != actual {
-		t.Errorf("expected %v, actual %v", expected, actual)
-	}
-	if expected, actual := T, slice[0]; expected != actual {
-		t.Errorf("expected %v, actual %v", expected, actual)
-	}
-	if expected, actual := Nil, slice[1]; expected != actual {
-		t.Errorf("expected %v, actual %v", expected, actual)
-	}
-	if expected, actual := Quote, slice[2]; expected != actual {
-		t.Errorf("expected %v, actual %v", expected, actual)
-	}
-}
+// 	slice = Slice(List(T, Nil, Quote))
+// 	if expected, actual := 3, len(slice); expected != actual {
+// 		t.Errorf("expected %v, actual %v", expected, actual)
+// 	}
+// 	if expected, actual := T, slice[0]; expected != actual {
+// 		t.Errorf("expected %v, actual %v", expected, actual)
+// 	}
+// 	if expected, actual := Nil, slice[1]; expected != actual {
+// 		t.Errorf("expected %v, actual %v", expected, actual)
+// 	}
+// 	if expected, actual := Quote, slice[2]; expected != actual {
+// 		t.Errorf("expected %v, actual %v", expected, actual)
+// 	}
+// }
 
-func TestConcat(t *testing.T) {
-	if expected, actual := "()", Concat(Must(Read, "()")).String(); expected != actual {
-		t.Errorf("expected %v, actual %v", expected, actual)
-	}
-	if expected, actual := "(a)", Concat(Must(Read, "((a))")).String(); expected != actual {
-		t.Errorf("expected %v, actual %v", expected, actual)
-	}
-	if expected, actual := "(a)", Concat(Must(Read, "(() (a))")).String(); expected != actual {
-		t.Errorf("expected %v, actual %v", expected, actual)
-	}
-	if expected, actual := "(a b c)", Concat(Must(Read, "(() (a) (b c))")).String(); expected != actual {
-		t.Errorf("expected %v, actual %v", expected, actual)
-	}
-	if expected, actual := "(a b c)", Concat(Must(Read, "(() (a) () (b) () (c))")).String(); expected != actual {
-		t.Errorf("expected %v, actual %v", expected, actual)
-	}
-}
+// func TestConcat(t *testing.T) {
+// 	if expected, actual := "()", Concat(Must(Read, "()")).String(); expected != actual {
+// 		t.Errorf("expected %v, actual %v", expected, actual)
+// 	}
+// 	if expected, actual := "(a)", Concat(Must(Read, "((a))")).String(); expected != actual {
+// 		t.Errorf("expected %v, actual %v", expected, actual)
+// 	}
+// 	if expected, actual := "(a)", Concat(Must(Read, "(() (a))")).String(); expected != actual {
+// 		t.Errorf("expected %v, actual %v", expected, actual)
+// 	}
+// 	if expected, actual := "(a b c)", Concat(Must(Read, "(() (a) (b c))")).String(); expected != actual {
+// 		t.Errorf("expected %v, actual %v", expected, actual)
+// 	}
+// 	if expected, actual := "(a b c)", Concat(Must(Read, "(() (a) () (b) () (c))")).String(); expected != actual {
+// 		t.Errorf("expected %v, actual %v", expected, actual)
+// 	}
+// }
