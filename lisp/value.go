@@ -7,11 +7,26 @@ import (
 
 // Value
 type Value interface {
-	IsAtom() bool
-	GetCar() (Value, error)
-	GetCdr() (Value, error)
-	IsEq(Value) bool
+	prim_atom() bool
+	prim_car() (Value, error)
+	prim_cdr() (Value, error)
+	prim_eq(Value) bool
 	String() string
+}
+
+func Atom(x Value) bool {
+	return x.prim_atom()
+}
+
+func Car(x Value) (Value, error) {
+	return x.prim_car()
+}
+
+func Cdr(x Value) (Value, error) {
+	return x.prim_cdr()
+}
+func Eq(x, y Value) bool {
+	return x.prim_eq(y)
 }
 
 var T Value = Symbol("t")
@@ -34,19 +49,19 @@ func Symbol(name string) Value {
 	return value
 }
 
-func (*symbol) IsAtom() bool {
+func (*symbol) prim_atom() bool {
 	return true
 }
 
-func (s *symbol) GetCar() (Value, error) {
+func (s *symbol) prim_car() (Value, error) {
 	return nil, fmt.Errorf("car: not a cons: %v", s)
 }
 
-func (s *symbol) GetCdr() (Value, error) {
+func (s *symbol) prim_cdr() (Value, error) {
 	return nil, fmt.Errorf("cdr: not a cons: %v", s)
 }
 
-func (s *symbol) IsEq(other Value) bool {
+func (s *symbol) prim_eq(other Value) bool {
 	switch v := other.(type) {
 	case *symbol:
 		return s.name == v.name
@@ -73,18 +88,18 @@ func Cons(car Value, cdr Value) Value {
 	return &cons{car, cdr}
 }
 
-func (*cons) IsAtom() bool {
+func (*cons) prim_atom() bool {
 	return false
 }
 
-func (c *cons) GetCar() (Value, error) {
+func (c *cons) prim_car() (Value, error) {
 	return c.car, nil
 }
 
-func (c *cons) GetCdr() (Value, error) {
+func (c *cons) prim_cdr() (Value, error) {
 	return c.cdr, nil
 }
-func (c *cons) IsEq(other Value) bool {
+func (c *cons) prim_eq(other Value) bool {
 	return false
 }
 
