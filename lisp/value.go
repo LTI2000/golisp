@@ -74,8 +74,8 @@ type cons struct {
 	cdr Value
 }
 
-func Cons(head Value, tail Value) Value {
-	return &cons{head, tail}
+func Cons(car Value, cdr Value) Value {
+	return &cons{car, cdr}
 }
 
 func (*cons) IsAtom() bool {
@@ -95,21 +95,27 @@ func (c *cons) IsEq(other Value) bool {
 
 func (c *cons) String() string {
 	var sb strings.Builder
-
-	cdr := c.GetCdr()
 	sb.WriteString("(")
-	sb.WriteString(c.GetCar().String())
-	for !cdr.IsAtom() {
-		sb.WriteString(" ")
-		sb.WriteString(cdr.GetCar().String())
-		cdr = cdr.GetCdr()
-	}
-	if cdr != Nil {
-		sb.WriteString(" . ")
-		sb.WriteString(cdr.String())
-	}
-	sb.WriteString(")")
 
+	sb.WriteString(c.car.String())
+	rest := c.cdr
+loop:
+	for {
+		switch v := rest.(type) {
+		case *cons:
+			sb.WriteString(" ")
+			sb.WriteString(v.car.String())
+			rest = v.cdr
+		case *symbol:
+			if rest != Nil {
+				sb.WriteString(" . ")
+				sb.WriteString(rest.String())
+			}
+			break loop
+		}
+	}
+
+	sb.WriteString(")")
 	return sb.String()
 }
 
