@@ -91,7 +91,7 @@ func TestReadDottedListPair(t *testing.T) {
 }
 
 func TestReadDottedProperList(t *testing.T) {
-	if value, err := Read("(x . (y . ())"); err != nil {
+	if value, err := Read("(x . (y . ()))"); err != nil {
 		t.Fatalf("err %v", err)
 	} else if expected, actual := Symbol("x"), value.GetCar(); expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)
@@ -100,7 +100,7 @@ func TestReadDottedProperList(t *testing.T) {
 	}
 }
 func TestReadLongDottedProperList(t *testing.T) {
-	if value, err := Read("(x . (y . (z . ()))"); err != nil {
+	if value, err := Read("(x . (y . (z . ())))"); err != nil {
 		t.Fatalf("err %v", err)
 	} else if expected, actual := "(x y z)", value.String(); expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)

@@ -53,7 +53,7 @@ func (r *Reader) matchToken(token TokenType) error {
 	if match, err := r.peekToken(token); err != nil {
 		return err
 	} else if !match {
-		return fmt.Errorf("could not match token: '%v'", token)
+		return fmt.Errorf("missing token: '%v'", token)
 	} else {
 		return nil
 	}
