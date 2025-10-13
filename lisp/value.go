@@ -69,36 +69,36 @@ func (s *symbol) String() string {
 }
 
 // Pair
-type pair struct {
-	head Value
-	tail Value
+type cons struct {
+	car Value
+	cdr Value
 }
 
-func Pair(head Value, tail Value) Value {
-	return &pair{head, tail}
+func Cons(head Value, tail Value) Value {
+	return &cons{head, tail}
 }
 
-func (*pair) IsAtom() bool {
+func (*cons) IsAtom() bool {
 	return false
 }
 
-func (p *pair) GetCar() Value {
-	return p.head
+func (c *cons) GetCar() Value {
+	return c.car
 }
 
-func (p *pair) GetCdr() Value {
-	return p.tail
+func (c *cons) GetCdr() Value {
+	return c.cdr
 }
-func (p *pair) IsEq(other Value) bool {
+func (c *cons) IsEq(other Value) bool {
 	return false
 }
 
-func (p *pair) String() string {
+func (c *cons) String() string {
 	var sb strings.Builder
 
-	cdr := p.GetCdr()
+	cdr := c.GetCdr()
 	sb.WriteString("(")
-	sb.WriteString(p.GetCar().String())
+	sb.WriteString(c.GetCar().String())
 	for !cdr.IsAtom() {
 		sb.WriteString(" ")
 		sb.WriteString(cdr.GetCar().String())
@@ -119,7 +119,7 @@ func (p *pair) String() string {
 func List(slice ...Value) Value {
 	list := Nil
 	for i := len(slice) - 1; i >= 0; i-- {
-		list = Pair(slice[i], list)
+		list = Cons(slice[i], list)
 	}
 	return list
 }
@@ -136,7 +136,7 @@ func Slice(list Value) (slice []Value) {
 // append two lists. Panics if l1 or l2 is not a list Value
 func Append(l1, l2 Value) Value {
 	if l1 != Nil {
-		return Pair(l1.GetCar(), Append(l1.GetCdr(), l2))
+		return Cons(l1.GetCar(), Append(l1.GetCdr(), l2))
 	} else {
 		return l2
 	}

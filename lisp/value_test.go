@@ -59,7 +59,7 @@ func TestSymbolString(t *testing.T) {
 }
 
 func TestConsAtom(t *testing.T) {
-	value := Pair(nil, nil)
+	value := Cons(nil, nil)
 	actual := value.IsAtom()
 	if actual {
 		t.Errorf("%v", value)
@@ -68,7 +68,7 @@ func TestConsAtom(t *testing.T) {
 
 func TestConsCar(t *testing.T) {
 	car := Symbol("car")
-	value := Pair(car, nil)
+	value := Cons(car, nil)
 	actual := value.GetCar()
 	if actual != car {
 		t.Errorf("%v", value)
@@ -77,7 +77,7 @@ func TestConsCar(t *testing.T) {
 
 func TestConsCdr(t *testing.T) {
 	cdr := Symbol("cdr")
-	value := Pair(nil, cdr)
+	value := Cons(nil, cdr)
 	actual := value.GetCdr()
 	if actual != cdr {
 		t.Errorf("%v", value)
@@ -85,13 +85,13 @@ func TestConsCdr(t *testing.T) {
 }
 
 func TestConsString(t *testing.T) {
-	if expected, actual := "(x)", Pair(Symbol("x"), Nil).String(); expected != actual {
+	if expected, actual := "(x)", Cons(Symbol("x"), Nil).String(); expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
-	if expected, actual := "(x y)", Pair(Symbol("x"), Pair(Symbol("y"), Nil)).String(); expected != actual {
+	if expected, actual := "(x y)", Cons(Symbol("x"), Cons(Symbol("y"), Nil)).String(); expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
-	if expected, actual := "(x . y)", Pair(Symbol("x"), Symbol("y")).String(); expected != actual {
+	if expected, actual := "(x . y)", Cons(Symbol("x"), Symbol("y")).String(); expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 }

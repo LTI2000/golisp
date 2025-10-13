@@ -89,7 +89,7 @@ func (r *Reader) readList() (Value, error) {
 	} else if tail, err := r.readTail(isDot); err != nil {
 		return nil, err
 	} else {
-		return Pair(head, tail), nil
+		return Cons(head, tail), nil
 	}
 }
 
