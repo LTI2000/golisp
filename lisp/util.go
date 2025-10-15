@@ -3,11 +3,10 @@ package lisp
 import (
 	"strings"
 
-	"github.com/LTI2000/golisp/lisp/expression"
 	"github.com/LTI2000/golisp/lisp/scan"
 )
 
-func Read(source string) (expression.Value, error) {
+func Read(source string) (Value, error) {
 	return NewReader(scan.NewScanner(strings.NewReader(source))).ReadValue()
 }
 

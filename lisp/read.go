@@ -3,7 +3,6 @@ package lisp
 import (
 	"fmt"
 
-	"github.com/LTI2000/golisp/lisp/expression"
 	"github.com/LTI2000/golisp/lisp/scan"
 )
 
@@ -62,16 +61,16 @@ func (r *Reader) matchToken(token scan.TokenType) error {
 	}
 }
 
-func (r *Reader) ReadValue() (expression.Value, error) {
+func (r *Reader) ReadValue() (Value, error) {
 	if token, err := r.nextToken(); err != nil {
 		return nil, err
 	} else if token.Type == scan.Identifier {
-		return expression.Symbol(token.Value), nil
+		return Symbol(token.Value), nil
 	} else if token.Type == scan.Apostrophe {
 		if exp, err := r.ReadValue(); err != nil {
 			return nil, err
 		} else {
-			return expression.List(expression.Quote, exp), nil
+			return List(Quote, exp), nil
 		}
 	} else if token.Type == scan.LeftParen {
 		return r.readList()
@@ -80,11 +79,11 @@ func (r *Reader) ReadValue() (expression.Value, error) {
 	}
 }
 
-func (r *Reader) readList() (expression.Value, error) {
+func (r *Reader) readList() (Value, error) {
 	if isRightParen, err := r.peekToken(scan.RightParen); err != nil {
 		return nil, err
 	} else if isRightParen {
-		return expression.Nil, nil
+		return Nil, nil
 	} else if head, err := r.ReadValue(); err != nil {
 		return nil, err
 	} else if isDot, err := r.peekToken(scan.Dot); err != nil {
@@ -92,11 +91,11 @@ func (r *Reader) readList() (expression.Value, error) {
 	} else if tail, err := r.readTail(isDot); err != nil {
 		return nil, err
 	} else {
-		return expression.Cons(head, tail), nil
+		return Cons(head, tail), nil
 	}
 }
 
-func (r *Reader) readTail(isDot bool) (tail expression.Value, err error) {
+func (r *Reader) readTail(isDot bool) (tail Value, err error) {
 	if isDot {
 		tail, err = r.ReadValue()
 		if err == nil {
