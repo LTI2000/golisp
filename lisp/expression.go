@@ -62,9 +62,9 @@ func (s *symbol) prim_cdr() (Expression, error) {
 }
 
 func (s *symbol) prim_eq(other Expression) bool {
-	switch v := other.(type) {
+	switch e := other.(type) {
 	case *symbol:
-		return s.name == v.name
+		return s.name == e.name
 	default:
 		return false
 	}
@@ -86,6 +86,15 @@ type cons struct {
 
 func Cons(car Expression, cdr Expression) Expression {
 	return &cons{car, cdr}
+}
+
+func Uncons(e Expression) (Expression, Expression, error) {
+	switch c := e.(type) {
+	case *cons:
+		return c.car, c.cdr, nil
+	default:
+		return nil, nil, fmt.Errorf("Uncons: not a cons: %v", c)
+	}
 }
 
 func (*cons) prim_atom() bool {
@@ -111,15 +120,15 @@ func (c *cons) String() string {
 	rest := c.cdr
 loop:
 	for {
-		switch v := rest.(type) {
+		switch e := rest.(type) {
 		case *cons:
 			sb.WriteString(" ")
-			sb.WriteString(v.car.String())
-			rest = v.cdr
+			sb.WriteString(e.car.String())
+			rest = e.cdr
 		case *symbol:
-			if v != Nil {
+			if e != Nil {
 				sb.WriteString(" . ")
-				sb.WriteString(v.String())
+				sb.WriteString(e.String())
 			}
 			break loop
 		}
