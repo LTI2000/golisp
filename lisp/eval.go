@@ -70,58 +70,66 @@ func Eval(e, a Expression) (Expression, error) {
 		return assoc(e, a)
 	} else if car_e, cdr_e, err := Uncons(e); err != nil {
 		return nil, err
-	} else if Eq(car_e, Symbol("quote")) {
-		return Car(cdr_e)
-	} else if Eq(car_e, Symbol("atom")) {
-		if cadr_e, _, err := Uncons(cdr_e); err != nil {
-			return nil, err
-		} else if a0, err := Eval(cadr_e, e); err != nil {
+	} else if Atom(car_e) {
+		if Eq(car_e, Symbol("quote")) {
+			return Car(cdr_e)
+		} else if Eq(car_e, Symbol("atom")) {
+			if cadr_e, _, err := Uncons(cdr_e); err != nil {
+				return nil, err
+			} else if x, err := Eval(cadr_e, e); err != nil {
+				return nil, err
+			} else {
+				return Bool(Atom(x)), nil
+			}
+		} else if Eq(car_e, Symbol("eq")) {
+			if cadr_e, cddr_e, err := Uncons(cdr_e); err != nil {
+				return nil, err
+			} else if caddr_e, _, err := Uncons(cddr_e); err != nil {
+				return nil, err
+			} else if x, err := Eval(cadr_e, e); err != nil {
+				return nil, err
+			} else if y, err := Eval(caddr_e, e); err != nil {
+				return nil, err
+			} else {
+				return Bool(Eq(x, y)), nil
+			}
+		} else if Eq(car_e, Symbol("car")) {
+			if cadr_e, _, err := Uncons(cdr_e); err != nil {
+				return nil, err
+			} else if x, err := Eval(cadr_e, e); err != nil {
+				return nil, err
+			} else {
+				return Car(x)
+			}
+		} else if Eq(car_e, Symbol("cdr")) {
+			if cadr_e, _, err := Uncons(cdr_e); err != nil {
+				return nil, err
+			} else if x, err := Eval(cadr_e, e); err != nil {
+				return nil, err
+			} else {
+				return Cdr(x)
+			}
+		} else if Eq(car_e, Symbol("cons")) {
+			if cadr_e, cddr_e, err := Uncons(cdr_e); err != nil {
+				return nil, err
+			} else if caddr_e, _, err := Uncons(cddr_e); err != nil {
+				return nil, err
+			} else if x, err := Eval(cadr_e, e); err != nil {
+				return nil, err
+			} else if y, err := Eval(caddr_e, e); err != nil {
+				return nil, err
+			} else {
+				return Cons(x, y), nil
+			}
+		} else if Eq(car_e, Symbol("cond")) {
+			return evcon(cdr_e, a)
+		} else if f, err := assoc(car_e, a); err != nil {
 			return nil, err
 		} else {
-			return Bool(Atom(a0)), nil
-		}
-	} else if Eq(car_e, Symbol("eq")) {
-		if cadr_e, cddr_e, err := Uncons(cdr_e); err != nil {
-			return nil, err
-		} else if caddr_e, _, err := Uncons(cddr_e); err != nil {
-			return nil, err
-		} else if a0, err := Eval(cadr_e, e); err != nil {
-			return nil, err
-		} else if a1, err := Eval(caddr_e, e); err != nil {
-			return nil, err
-		} else {
-			return Bool(Eq(a0, a1)), nil
-		}
-	} else if Eq(car_e, Symbol("car")) {
-		if cadr_e, _, err := Uncons(cdr_e); err != nil {
-			return nil, err
-		} else if a0, err := Eval(cadr_e, e); err != nil {
-			return nil, err
-		} else {
-			return Car(a0)
-		}
-	} else if Eq(car_e, Symbol("cdr")) {
-		if cadr_e, _, err := Uncons(cdr_e); err != nil {
-			return nil, err
-		} else if a0, err := Eval(cadr_e, e); err != nil {
-			return nil, err
-		} else {
-			return Cdr(a0)
-		}
-	} else if Eq(car_e, Symbol("cons")) {
-		if cadr_e, cddr_e, err := Uncons(cdr_e); err != nil {
-			return nil, err
-		} else if caddr_e, _, err := Uncons(cddr_e); err != nil {
-			return nil, err
-		} else if a0, err := Eval(cadr_e, e); err != nil {
-			return nil, err
-		} else if a1, err := Eval(caddr_e, e); err != nil {
-			return nil, err
-		} else {
-			return Cons(a0, a1), nil
+			return Eval(Cons(f, cdr_e), a)
 		}
 	} else {
-		panic("NYI")
+		return nil, fmt.Errorf("Eval: bad expression: %v", e)
 	}
 }
 
@@ -129,6 +137,24 @@ func Eval(e, a Expression) (Expression, error) {
 //   (cond ((eval. (caar c) a)
 //          (eval. (cadar c) a))
 //         ('t (evcon. (cdr c) a))))
+
+func evcon(c, a Expression) (Expression, error) {
+	if car_c, cdr_c, err := Uncons(c); err != nil {
+		return nil, err
+	} else if caar_c, cdar_c, err := Uncons(car_c); err != nil {
+		return nil, err
+	} else if x, err := Eval(caar_c, a); err != nil {
+		return nil, err
+	} else if x != Nil {
+		if cadar_c, _, err := Uncons(cdar_c); err != nil {
+			return nil, err
+		} else {
+			return Eval(cadar_c, a)
+		}
+	} else {
+		return evcon(cdr_c, a)
+	}
+}
 
 // (defun evlis. (m a)
 //   (cond ((null. m) '())

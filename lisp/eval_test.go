@@ -13,6 +13,8 @@ func TestEval(t *testing.T) {
 		{"a", "(car '(a . b))", "()"},
 		{"b", "(cdr '(a . b))", "()"},
 		{"(a . b)", "(cons 'a 'b)", "()"},
+		{"no", "(cond ((atom '(a b)) 'yes) ('t 'no))", "()"},
+		{"(a . b)", "(kons 'a 'b)", "((kons cons))"},
 	} {
 		if expected, actual :=
 			Must(Read, in[0]),
