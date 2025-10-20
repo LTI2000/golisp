@@ -31,7 +31,7 @@ func assoc(x, y Expression) (Expression, error) {
 	if car_y, cdr_y, err := Uncons(y); err != nil {
 		return nil, fmt.Errorf("%v: unbound variable", x)
 	} else if caar_y, cdar_y, err := Uncons(car_y); err != nil {
-		return nil, fmt.Errorf("%v: malformed assoc", y)
+		return nil, err
 	} else if Eq(caar_y, x) {
 		return Car(cdar_y)
 	} else {
@@ -68,6 +68,18 @@ func assoc(x, y Expression) (Expression, error) {
 func Eval(e, a Expression) (Expression, error) {
 	if Atom(e) {
 		return assoc(e, a)
+	} else if car_e, cdr_e, err := Uncons(e); err != nil {
+		return nil, err
+	} else if Eq(car_e, Symbol("quote")) {
+		return Car(cdr_e)
+	} else if Eq(car_e, Symbol("atom")) {
+		if cadr_e, _, err := Uncons(cdr_e); err != nil {
+			return nil, err
+		} else if a0, err := Eval(cadr_e, e); err != nil {
+			return nil, err
+		} else {
+			return Bool(Atom(a0)), nil
+		}
 	} else {
 		panic("NYI")
 	}

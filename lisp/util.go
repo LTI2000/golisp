@@ -10,11 +10,19 @@ func Read(source string) (Expression, error) {
 	return NewReader(scan.NewScanner(strings.NewReader(source))).ReadValue()
 }
 
-func Must[A, B any](f func(A) (B, error), a A) B {
-	if b, err := f(a); err != nil {
+func Must[A, R any](f func(A) (R, error), a A) R {
+	if r, err := f(a); err != nil {
 		panic("Must() failed: " + err.Error())
 	} else {
-		return b
+		return r
+	}
+}
+
+func Must2[A, B, R any](f func(A, B) (R, error), a A, b B) R {
+	if r, err := f(a, b); err != nil {
+		panic("Must() failed: " + err.Error())
+	} else {
+		return r
 	}
 }
 

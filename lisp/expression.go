@@ -149,6 +149,14 @@ func List(slice ...Expression) Expression {
 	return list
 }
 
+func Bool(b bool) Expression {
+	if b {
+		return T
+	} else {
+		return Nil
+	}
+}
+
 // // create a Value slice from a Value, which must be a list. panics if not.
 // func Slice(list Value) (slice []Value) {
 // 	for list != Nil {
