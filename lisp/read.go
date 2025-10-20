@@ -61,7 +61,7 @@ func (r *Reader) matchToken(token scan.TokenType) error {
 	}
 }
 
-func (r *Reader) ReadValue() (Value, error) {
+func (r *Reader) ReadValue() (Expression, error) {
 	if token, err := r.nextToken(); err != nil {
 		return nil, err
 	} else if token.Type == scan.Identifier {
@@ -79,7 +79,7 @@ func (r *Reader) ReadValue() (Value, error) {
 	}
 }
 
-func (r *Reader) readList() (Value, error) {
+func (r *Reader) readList() (Expression, error) {
 	if isRightParen, err := r.peekToken(scan.RightParen); err != nil {
 		return nil, err
 	} else if isRightParen {
@@ -95,7 +95,7 @@ func (r *Reader) readList() (Value, error) {
 	}
 }
 
-func (r *Reader) readTail(isDot bool) (tail Value, err error) {
+func (r *Reader) readTail(isDot bool) (tail Expression, err error) {
 	if isDot {
 		tail, err = r.ReadValue()
 		if err == nil {

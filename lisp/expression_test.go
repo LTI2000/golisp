@@ -14,10 +14,10 @@ func TestSymbolIdentity(t *testing.T) {
 }
 
 func TestSymbolAtom(t *testing.T) {
-	value := Symbol("sym")
-	actual := Atom(value)
+	expression := Symbol("sym")
+	actual := Atom(expression)
 	if !actual {
-		t.Errorf("%v", value)
+		t.Errorf("%v", expression)
 	}
 }
 
@@ -63,35 +63,35 @@ func TestSymbolString(t *testing.T) {
 }
 
 func TestConsAtom(t *testing.T) {
-	value := Cons(nil, nil)
-	actual := Atom(value)
+	expression := Cons(nil, nil)
+	actual := Atom(expression)
 	if actual {
-		t.Errorf("%v", value)
+		t.Errorf("%v", expression)
 	}
 }
 
 func TestConsCar(t *testing.T) {
 	car := Symbol("car")
-	value := Cons(car, nil)
-	actual, err := Car(value)
+	expression := Cons(car, nil)
+	actual, err := Car(expression)
 	if err != nil {
 		t.Fatalf("err %v", err)
 	}
 	if actual != car {
-		t.Errorf("%v", value)
+		t.Errorf("%v", expression)
 	}
 }
 
 func TestConsCdr(t *testing.T) {
 	cdr := Symbol("cdr")
-	value := Cons(nil, cdr)
-	actual, err := Cdr(value)
+	expression := Cons(nil, cdr)
+	actual, err := Cdr(expression)
 	if err != nil {
 		t.Fatalf("err %v", err)
 	}
 
 	if actual != cdr {
-		t.Errorf("%v", value)
+		t.Errorf("%v", expression)
 	}
 }
 

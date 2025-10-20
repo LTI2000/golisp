@@ -6,7 +6,7 @@ import (
 	"github.com/LTI2000/golisp/lisp/scan"
 )
 
-func Read(source string) (Value, error) {
+func Read(source string) (Expression, error) {
 	return NewReader(scan.NewScanner(strings.NewReader(source))).ReadValue()
 }
 

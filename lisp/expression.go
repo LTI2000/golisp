@@ -5,33 +5,33 @@ import (
 	"strings"
 )
 
-// Value
-type Value interface {
+// Expression
+type Expression interface {
 	prim_atom() bool
-	prim_car() (Value, error)
-	prim_cdr() (Value, error)
-	prim_eq(Value) bool
+	prim_car() (Expression, error)
+	prim_cdr() (Expression, error)
+	prim_eq(Expression) bool
 	String() string
 }
 
-func Atom(x Value) bool {
+func Atom(x Expression) bool {
 	return x.prim_atom()
 }
 
-func Car(x Value) (Value, error) {
+func Car(x Expression) (Expression, error) {
 	return x.prim_car()
 }
 
-func Cdr(x Value) (Value, error) {
+func Cdr(x Expression) (Expression, error) {
 	return x.prim_cdr()
 }
-func Eq(x, y Value) bool {
+func Eq(x, y Expression) bool {
 	return x.prim_eq(y)
 }
 
-var T Value = Symbol("t")
-var Nil Value = Symbol("nil")
-var Quote Value = Symbol("quote")
+var T Expression = Symbol("t")
+var Nil Expression = Symbol("nil")
+var Quote Expression = Symbol("quote")
 
 // Symbol
 type symbol struct {
@@ -40,28 +40,28 @@ type symbol struct {
 
 var symbols map[string]*symbol = make(map[string]*symbol)
 
-func Symbol(name string) Value {
-	value, ok := symbols[name]
+func Symbol(name string) Expression {
+	expression, ok := symbols[name]
 	if !ok {
-		value = &symbol{name}
-		symbols[name] = value
+		expression = &symbol{name}
+		symbols[name] = expression
 	}
-	return value
+	return expression
 }
 
 func (*symbol) prim_atom() bool {
 	return true
 }
 
-func (s *symbol) prim_car() (Value, error) {
+func (s *symbol) prim_car() (Expression, error) {
 	return nil, fmt.Errorf("car: not a cons: %v", s)
 }
 
-func (s *symbol) prim_cdr() (Value, error) {
+func (s *symbol) prim_cdr() (Expression, error) {
 	return nil, fmt.Errorf("cdr: not a cons: %v", s)
 }
 
-func (s *symbol) prim_eq(other Value) bool {
+func (s *symbol) prim_eq(other Expression) bool {
 	switch v := other.(type) {
 	case *symbol:
 		return s.name == v.name
@@ -80,11 +80,11 @@ func (s *symbol) String() string {
 
 // Pair
 type cons struct {
-	car Value
-	cdr Value
+	car Expression
+	cdr Expression
 }
 
-func Cons(car Value, cdr Value) Value {
+func Cons(car Expression, cdr Expression) Expression {
 	return &cons{car, cdr}
 }
 
@@ -92,14 +92,14 @@ func (*cons) prim_atom() bool {
 	return false
 }
 
-func (c *cons) prim_car() (Value, error) {
+func (c *cons) prim_car() (Expression, error) {
 	return c.car, nil
 }
 
-func (c *cons) prim_cdr() (Value, error) {
+func (c *cons) prim_cdr() (Expression, error) {
 	return c.cdr, nil
 }
-func (c *cons) prim_eq(other Value) bool {
+func (c *cons) prim_eq(other Expression) bool {
 	return false
 }
 
@@ -132,7 +132,7 @@ loop:
 // Utils
 
 // create a (possibly empty) List from a Value slice.
-func List(slice ...Value) Value {
+func List(slice ...Expression) Expression {
 	list := Nil
 	for i := len(slice) - 1; i >= 0; i-- {
 		list = Cons(slice[i], list)
