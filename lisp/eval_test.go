@@ -7,9 +7,9 @@ func TestEval(t *testing.T) {
 		{"a", "x", "((x a))"},
 		{"a", "(quote a)", "()"},
 		{"t", "(atom 'a)", "()"},
-		{"()", "(atom '(a b))", "()"},
+		{"nil", "(atom '(a b))", "()"},
 		{"t", "(eq 'a 'a)", "()"},
-		{"()", "(eq 'a 'b)", "()"},
+		{"nil", "(eq 'a 'b)", "()"},
 	} {
 		if expected, actual :=
 			Must(Read, in[0]),

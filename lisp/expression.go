@@ -71,11 +71,7 @@ func (s *symbol) prim_eq(other Expression) bool {
 }
 
 func (s *symbol) String() string {
-	if s == Nil {
-		return "()"
-	} else {
-		return s.name
-	}
+	return s.name
 }
 
 // Pair

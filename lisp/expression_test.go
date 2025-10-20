@@ -57,9 +57,6 @@ func TestSymbolString(t *testing.T) {
 	if expected, actual := "x", Symbol("x").String(); expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
-	if expected, actual := "()", Nil.String(); expected != actual {
-		t.Errorf("expected %v, actual %v", expected, actual)
-	}
 }
 
 func TestConsAtom(t *testing.T) {
@@ -114,7 +111,7 @@ func TestConsString(t *testing.T) {
 }
 
 func TestList(t *testing.T) {
-	if expected, actual := "()", List().String(); expected != actual {
+	if expected, actual := "nil", List().String(); expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 	if expected, actual := "(a)", List(Symbol("a")).String(); expected != actual {

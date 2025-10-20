@@ -7,7 +7,7 @@ import (
 // test expressions that write the same as they read
 func TestRead1(t *testing.T) {
 	for _, in := range []string{
-		"quote", "()", "(x)", "(x y)", "(x (y) z)", "(x . y)", "((x . y) (a . b))", "...",
+		"quote", "(x)", "(x y)", "(x (y) z)", "(x . y)", "((x . y) (a . b))", "...",
 	} {
 		if expected, actual := in, Must(Read, in).String(); expected != actual {
 			t.Errorf("expected %v, actual %v", expected, actual)
@@ -18,6 +18,8 @@ func TestRead1(t *testing.T) {
 // test expressions that write different than they read, such as 'x, or (x . ())
 func TestRead2(t *testing.T) {
 	for _, in := range [][2]string{
+		{"()",
+			"nil"},
 		{"'a",
 			"(quote a)"},
 		{"(x . ())",
