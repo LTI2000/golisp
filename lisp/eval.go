@@ -92,7 +92,34 @@ func Eval(e, a Expression) (Expression, error) {
 		} else {
 			return Bool(Eq(a0, a1)), nil
 		}
-
+	} else if Eq(car_e, Symbol("car")) {
+		if cadr_e, _, err := Uncons(cdr_e); err != nil {
+			return nil, err
+		} else if a0, err := Eval(cadr_e, e); err != nil {
+			return nil, err
+		} else {
+			return Car(a0)
+		}
+	} else if Eq(car_e, Symbol("cdr")) {
+		if cadr_e, _, err := Uncons(cdr_e); err != nil {
+			return nil, err
+		} else if a0, err := Eval(cadr_e, e); err != nil {
+			return nil, err
+		} else {
+			return Cdr(a0)
+		}
+	} else if Eq(car_e, Symbol("cons")) {
+		if cadr_e, cddr_e, err := Uncons(cdr_e); err != nil {
+			return nil, err
+		} else if caddr_e, _, err := Uncons(cddr_e); err != nil {
+			return nil, err
+		} else if a0, err := Eval(cadr_e, e); err != nil {
+			return nil, err
+		} else if a1, err := Eval(caddr_e, e); err != nil {
+			return nil, err
+		} else {
+			return Cons(a0, a1), nil
+		}
 	} else {
 		panic("NYI")
 	}
