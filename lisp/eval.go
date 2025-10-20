@@ -80,6 +80,19 @@ func Eval(e, a Expression) (Expression, error) {
 		} else {
 			return Bool(Atom(a0)), nil
 		}
+	} else if Eq(car_e, Symbol("eq")) {
+		if cadr_e, cddr_e, err := Uncons(cdr_e); err != nil {
+			return nil, err
+		} else if caddr_e, _, err := Uncons(cddr_e); err != nil {
+			return nil, err
+		} else if a0, err := Eval(cadr_e, e); err != nil {
+			return nil, err
+		} else if a1, err := Eval(caddr_e, e); err != nil {
+			return nil, err
+		} else {
+			return Bool(Eq(a0, a1)), nil
+		}
+
 	} else {
 		panic("NYI")
 	}
