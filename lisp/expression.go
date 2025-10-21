@@ -152,36 +152,3 @@ func Bool(b bool) Expression {
 		return Nil
 	}
 }
-
-// // create a Value slice from a Value, which must be a list. panics if not.
-// func Slice(list Value) (slice []Value) {
-// 	for list != Nil {
-// 		slice = append(slice, list.GetCar())
-// 		list = list.GetCdr()
-// 	}
-// 	return
-// }
-
-// // append two lists. Panics if l1 or l2 is not a list Value
-// func Append(l1, l2 Value) Value {
-// 	if l1 != Nil {
-// 		return Cons(l1.GetCar(), Append(l1.GetCdr(), l2))
-// 	} else {
-// 		return l2
-// 	}
-// }
-
-// func Foldr(f func(Value, Value) Value, z, l Value) Value {
-// 	if l != Nil {
-// 		return f(l.GetCar(), Foldr(f, z, l.GetCdr()))
-// 	} else {
-// 		return z
-// 	}
-// }
-
-// func Concat(l Value) Value {
-// 	return Foldr(Append, Nil, l)
-// }
-
-// // concatMap               :: (a -> [b]) -> [a] -> [b]
-// // concatMap f             =  foldr ((++) . f) []
