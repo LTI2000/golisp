@@ -70,7 +70,7 @@ func (r *Reader) ReadValue() (Expression, error) {
 		if exp, err := r.ReadValue(); err != nil {
 			return nil, err
 		} else {
-			return List(Quote, exp), nil
+			return List(QUOTE, exp), nil
 		}
 	} else if token.Type == scan.LeftParen {
 		return r.readList()
@@ -83,7 +83,7 @@ func (r *Reader) readList() (Expression, error) {
 	if isRightParen, err := r.peekToken(scan.RightParen); err != nil {
 		return nil, err
 	} else if isRightParen {
-		return Nil, nil
+		return NIL, nil
 	} else if head, err := r.ReadValue(); err != nil {
 		return nil, err
 	} else if isDot, err := r.peekToken(scan.Dot); err != nil {

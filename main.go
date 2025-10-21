@@ -17,15 +17,26 @@ func main() {
 func repl(r io.Reader) {
 	scanner := scan.NewScanner(r)
 	reader := lisp.NewReader(scanner)
+
+	env := lisp.NIL
 	for {
 		if expression, err := reader.ReadValue(); err != nil {
 			fmt.Printf("read failed: %v\n", err.Error())
 			return
-		} else if result, err := lisp.Eval(expression, lisp.Nil); err != nil {
-			fmt.Printf("eval failed: %v\n", err.Error())
+		} else if binding, err := lisp.Defun(expression); err != nil {
+			fmt.Printf("defun failed: %v\n", err.Error())
+			if result, err := lisp.Eval(expression, env); err != nil {
+				fmt.Printf("eval failed: %v\n", err.Error())
+				return
+			} else {
+				fmt.Printf("; %v\n", result)
+			}
+		} else if env1, err := lisp.Append(binding, env); err != nil {
+			fmt.Printf("Append failed: %v\n", err.Error())
 			return
 		} else {
-			fmt.Printf("; %v\n", result)
+			env = env1
+			fmt.Printf("env: %v\n", env)
 		}
 	}
 }

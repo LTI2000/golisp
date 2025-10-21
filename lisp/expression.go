@@ -30,8 +30,17 @@ func Eq(x, y Expression) bool {
 }
 
 var T Expression = Symbol("t")
-var Nil Expression = Symbol("nil")
-var Quote Expression = Symbol("quote")
+var NIL Expression = Symbol("nil")
+var QUOTE Expression = Symbol("quote")
+var ATOM Expression = Symbol("atom")
+var EQ Expression = Symbol("eq")
+var CAR Expression = Symbol("car")
+var CDR Expression = Symbol("cdr")
+var CONS Expression = Symbol("cons")
+var COND Expression = Symbol("cond")
+var LABEL Expression = Symbol("label")
+var LAMBDA Expression = Symbol("lambda")
+var DEFUN Expression = Symbol("defun")
 
 // Symbol
 type symbol struct {
@@ -122,7 +131,7 @@ loop:
 			sb.WriteString(e.car.String())
 			rest = e.cdr
 		case *symbol:
-			if e != Nil {
+			if e != NIL {
 				sb.WriteString(" . ")
 				sb.WriteString(e.String())
 			}
@@ -138,7 +147,7 @@ loop:
 
 // create a (possibly empty) List from a Value slice.
 func List(slice ...Expression) Expression {
-	list := Nil
+	list := NIL
 	for i := len(slice) - 1; i >= 0; i-- {
 		list = Cons(slice[i], list)
 	}
@@ -149,6 +158,6 @@ func Bool(b bool) Expression {
 	if b {
 		return T
 	} else {
-		return Nil
+		return NIL
 	}
 }

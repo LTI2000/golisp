@@ -48,7 +48,7 @@ func TestSymbolEq(t *testing.T) {
 	if Eq(Symbol("a"), Symbol("b")) {
 		t.Errorf("expected false")
 	}
-	if Eq(Symbol("a"), Cons(Symbol("a"), Nil)) {
+	if Eq(Symbol("a"), Cons(Symbol("a"), NIL)) {
 		t.Errorf("expected false")
 	}
 }
@@ -93,16 +93,16 @@ func TestConsCdr(t *testing.T) {
 }
 
 func TestConsEq(t *testing.T) {
-	if Eq(Cons(Symbol("a"), Nil), Symbol("a")) {
+	if Eq(Cons(Symbol("a"), NIL), Symbol("a")) {
 		t.Errorf("expected false")
 	}
 }
 
 func TestConsString(t *testing.T) {
-	if expected, actual := "(x)", Cons(Symbol("x"), Nil).String(); expected != actual {
+	if expected, actual := "(x)", Cons(Symbol("x"), NIL).String(); expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
-	if expected, actual := "(x y)", Cons(Symbol("x"), Cons(Symbol("y"), Nil)).String(); expected != actual {
+	if expected, actual := "(x y)", Cons(Symbol("x"), Cons(Symbol("y"), NIL)).String(); expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 	if expected, actual := "(x . y)", Cons(Symbol("x"), Symbol("y")).String(); expected != actual {
