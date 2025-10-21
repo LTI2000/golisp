@@ -21,8 +21,7 @@
         ('t 'nil)))
 
 (defun not. (x)
-  (cond ((null. x) 't)
-        (x 'nil)
+  (cond (x 'nil)
         ('t 't)))
 
 (defun append. (x y)
