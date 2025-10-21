@@ -29,12 +29,18 @@ func pair(x, y Expression) (Expression, error) {
 }
 
 func assoc(x, y Expression) (Expression, error) {
-	if car_y, cdr_y, err := Uncons(y); err != nil {
+	if y == Nil {
 		return nil, fmt.Errorf("%v: unbound variable", x)
+	} else if car_y, cdr_y, err := Uncons(y); err != nil {
+		return nil, err
 	} else if caar_y, cdar_y, err := Uncons(car_y); err != nil {
 		return nil, err
 	} else if Eq(caar_y, x) {
-		return Car(cdar_y)
+		if cadar_y, _, err := Uncons(cdar_y); err != nil {
+			return nil, err
+		} else {
+			return cadar_y, nil
+		}
 	} else {
 		return assoc(x, cdr_y)
 	}
