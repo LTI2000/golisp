@@ -1,15 +1,5 @@
 package lisp
 
-import (
-	"strings"
-
-	"github.com/LTI2000/golisp/lisp/scan"
-)
-
-func Read(source string) (Expression, error) {
-	return NewReader(scan.NewScanner(strings.NewReader(source))).ReadValue()
-}
-
 func Must[A, R any](f func(A) (R, error), a A) R {
 	if r, err := f(a); err != nil {
 		panic("Must() failed: " + err.Error())

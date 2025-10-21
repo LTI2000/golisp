@@ -2,6 +2,7 @@ package lisp
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/LTI2000/golisp/lisp/scan"
 )
@@ -61,9 +62,12 @@ func (r *Reader) matchToken(token scan.TokenType) error {
 	}
 }
 
+// returns nil, nil on eof
 func (r *Reader) ReadValue() (Expression, error) {
 	if token, err := r.nextToken(); err != nil {
 		return nil, err
+	} else if token.Type == scan.Eof {
+		return nil, nil
 	} else if token.Type == scan.Identifier {
 		return Symbol(token.Value), nil
 	} else if token.Type == scan.Apostrophe {
@@ -106,4 +110,14 @@ func (r *Reader) readTail(isDot bool) (tail Expression, err error) {
 		tail, err = r.readList()
 	}
 	return
+}
+
+// utility functions
+
+func Read(source string) (Expression, error) {
+	return StringReader(source).ReadValue()
+}
+
+func StringReader(source string) *Reader {
+	return NewReader(scan.NewScanner(strings.NewReader(source)))
 }
