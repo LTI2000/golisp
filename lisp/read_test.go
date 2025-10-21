@@ -34,10 +34,18 @@ func TestRead2(t *testing.T) {
 		}
 	}
 }
-func TestReadError(t *testing.T) {
+func TestReadIllegalToken(t *testing.T) {
 	if _, err := Read(")"); err == nil {
 		t.Fatalf("expected error")
 	} else if expected, actual := "illegal token: 'RightParen )'", err.Error(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+}
+
+func TestReadUnterminatedList(t *testing.T) {
+	if _, err := Read("("); err == nil {
+		t.Fatalf("expected error")
+	} else if expected, actual := "unterminated list", err.Error(); expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 }

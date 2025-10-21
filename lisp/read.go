@@ -1,6 +1,7 @@
 package lisp
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -90,6 +91,8 @@ func (r *Reader) readList() (Expression, error) {
 		return NIL, nil
 	} else if head, err := r.ReadValue(); err != nil {
 		return nil, err
+	} else if head == nil {
+		return nil, errors.New("unterminated list")
 	} else if isDot, err := r.peekToken(scan.Dot); err != nil {
 		return nil, err
 	} else if tail, err := r.readTail(isDot); err != nil {

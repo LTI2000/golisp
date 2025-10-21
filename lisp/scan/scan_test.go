@@ -74,7 +74,7 @@ func TestIllegalInput(t *testing.T) {
 
 	if _, err := tokenizer.NextToken(); err == nil {
 		t.Fatalf("expected err")
-	} else if expected, actual := "illegal token", err.Error(); expected != actual {
+	} else if expected, actual := "scan: illegal rune: 64", err.Error(); expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 }
