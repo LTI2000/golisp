@@ -21,8 +21,11 @@ func repl(r io.Reader) {
 		if expression, err := reader.ReadValue(); err != nil {
 			fmt.Printf("read failed: %v\n", err.Error())
 			return
+		} else if result, err := lisp.Eval(expression, lisp.Nil); err != nil {
+			fmt.Printf("eval failed: %v\n", err.Error())
+			return
 		} else {
-			fmt.Printf("; %v\n", expression)
+			fmt.Printf("; %v\n", result)
 		}
 	}
 }
