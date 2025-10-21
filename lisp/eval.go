@@ -13,19 +13,27 @@ import "fmt"
 //   (cond (x '())
 //         ('t 't)))
 
-// (defun append. (x y)
-//   (cond ((null. x) y)
-//         ('t (cons (car x) (append. (cdr x) y)))))
+func append_(x, y Expression) Expression {
+	if x == Nil {
+		return y
+	} else if car_x, cdr_x, err := Uncons(x); err != nil {
+		panic("append_")
+	} else {
+		return Cons(car_x, append_(cdr_x, y))
+	}
+}
 
-// (defun pair. (x y)
-//   (cond ((and. (null. x) (null. y)) '())
-//         ((and. (not. (atom x)) (not. (atom y)))
-//          (cons (list (car x) (car y))
-//                (pair. (cdr x) (cdr y))))))
-
-// (defun assoc. (x y)
-//   (cond ((eq (caar y) x) (cadar y))
-//         ('t (assoc. x (cdr y)))))
+func pair(x, y Expression) Expression {
+	if x == Nil && y == Nil {
+		return Nil
+	} else if car_x, cdr_x, err := Uncons(x); err != nil {
+		panic("pair")
+	} else if car_y, cdr_y, err := Uncons(y); err != nil {
+		panic("pair")
+	} else {
+		return Cons(List(car_x, car_y), pair(cdr_x, cdr_y))
+	}
+}
 
 func assoc(x, y Expression) (Expression, error) {
 	if car_y, cdr_y, err := Uncons(y); err != nil {
@@ -39,32 +47,6 @@ func assoc(x, y Expression) (Expression, error) {
 	}
 }
 
-// (defun eval. (e a)
-//
-//	(cond
-//	  ((atom e) (assoc. e a))
-//	  ((atom (car e))
-//	   (cond
-//	     ((eq (car e) 'quote) (cadr e))
-//	     ((eq (car e) 'atom)  (atom (eval. (cadr e) a)))
-//	     ((eq (car e) 'eq)    (eq   (eval. (cadr e) a)
-//	                                (eval. (caddr e) a)))
-//	     ((eq (car e) 'car)   (car  (eval. (cadr e) a)))
-//	     ((eq (car e) 'cdr)   (cdr  (eval. (cadr e) a)))
-//	     ((eq (car e) 'cons)  (cons (eval. (cadr e) a)
-//	                                (eval. (caddr e) a)))
-//	     ((eq (car e) 'cond)  (evcon. (cdr e) a))
-//	     ('t (eval. (cons (assoc. (car e) a)
-//	                      (cdr e))
-//	                a))))
-//	  ((eq (caar e) 'label)
-//	   (eval. (cons (caddar e) (cdr e))
-//	          (cons (list (cadar e) (car e)) a)))
-//	  ((eq (caar e) 'lambda)
-//	   (eval. (caddar e)
-//	          (append. (pair. (cadar e) (evlis. (cdr e) a))
-//	                   a)))))
-
 func Eval(e, a Expression) (Expression, error) {
 	if Atom(e) {
 		return assoc(e, a)
@@ -76,7 +58,7 @@ func Eval(e, a Expression) (Expression, error) {
 		} else if Eq(car_e, Symbol("atom")) {
 			if cadr_e, _, err := Uncons(cdr_e); err != nil {
 				return nil, err
-			} else if x, err := Eval(cadr_e, e); err != nil {
+			} else if x, err := Eval(cadr_e, a); err != nil {
 				return nil, err
 			} else {
 				return Bool(Atom(x)), nil
@@ -86,9 +68,9 @@ func Eval(e, a Expression) (Expression, error) {
 				return nil, err
 			} else if caddr_e, _, err := Uncons(cddr_e); err != nil {
 				return nil, err
-			} else if x, err := Eval(cadr_e, e); err != nil {
+			} else if x, err := Eval(cadr_e, a); err != nil {
 				return nil, err
-			} else if y, err := Eval(caddr_e, e); err != nil {
+			} else if y, err := Eval(caddr_e, a); err != nil {
 				return nil, err
 			} else {
 				return Bool(Eq(x, y)), nil
@@ -96,7 +78,7 @@ func Eval(e, a Expression) (Expression, error) {
 		} else if Eq(car_e, Symbol("car")) {
 			if cadr_e, _, err := Uncons(cdr_e); err != nil {
 				return nil, err
-			} else if x, err := Eval(cadr_e, e); err != nil {
+			} else if x, err := Eval(cadr_e, a); err != nil {
 				return nil, err
 			} else {
 				return Car(x)
@@ -104,7 +86,7 @@ func Eval(e, a Expression) (Expression, error) {
 		} else if Eq(car_e, Symbol("cdr")) {
 			if cadr_e, _, err := Uncons(cdr_e); err != nil {
 				return nil, err
-			} else if x, err := Eval(cadr_e, e); err != nil {
+			} else if x, err := Eval(cadr_e, a); err != nil {
 				return nil, err
 			} else {
 				return Cdr(x)
@@ -114,9 +96,9 @@ func Eval(e, a Expression) (Expression, error) {
 				return nil, err
 			} else if caddr_e, _, err := Uncons(cddr_e); err != nil {
 				return nil, err
-			} else if x, err := Eval(cadr_e, e); err != nil {
+			} else if x, err := Eval(cadr_e, a); err != nil {
 				return nil, err
-			} else if y, err := Eval(caddr_e, e); err != nil {
+			} else if y, err := Eval(caddr_e, a); err != nil {
 				return nil, err
 			} else {
 				return Cons(x, y), nil
@@ -128,15 +110,30 @@ func Eval(e, a Expression) (Expression, error) {
 		} else {
 			return Eval(Cons(f, cdr_e), a)
 		}
+	} else if caar_e, cdar_e, err := Uncons(car_e); err != nil {
+		return nil, err
+	} else if Eq(caar_e, Symbol("label")) {
+		if cadar_e, cddar_e, err := Uncons(cdar_e); err != nil {
+			return nil, err
+		} else if caddar_e, _, err := Uncons(cddar_e); err != nil {
+			return nil, err
+		} else {
+			return Eval(Cons(caddar_e, cdr_e), Cons(List(cadar_e, car_e), a))
+		}
+	} else if Eq(caar_e, Symbol("lambda")) {
+		if cadar_e, cddar_e, err := Uncons(cdar_e); err != nil {
+			return nil, err
+		} else if caddar_e, _, err := Uncons(cddar_e); err != nil {
+			return nil, err
+		} else if as, err := evlis(cdr_e, a); err != nil {
+			return nil, err
+		} else {
+			return Eval(caddar_e, append_(pair(cadar_e, as), a))
+		}
 	} else {
 		return nil, fmt.Errorf("Eval: bad expression: %v", e)
 	}
 }
-
-// (defun evcon. (c a)
-//   (cond ((eval. (caar c) a)
-//          (eval. (cadar c) a))
-//         ('t (evcon. (cdr c) a))))
 
 func evcon(c, a Expression) (Expression, error) {
 	if car_c, cdr_c, err := Uncons(c); err != nil {
@@ -156,7 +153,16 @@ func evcon(c, a Expression) (Expression, error) {
 	}
 }
 
-// (defun evlis. (m a)
-//   (cond ((null. m) '())
-//         ('t (cons (eval.  (car m) a)
-//                   (evlis. (cdr m) a)))))
+func evlis(m, a Expression) (Expression, error) {
+	if m == Nil {
+		return Nil, nil
+	} else if car_m, cdr_m, err := Uncons(m); err != nil {
+		return nil, err
+	} else if first, err := Eval(car_m, a); err != nil {
+		return nil, err
+	} else if rest, err := evlis(cdr_m, a); err != nil {
+		return nil, err
+	} else {
+		return Cons(first, rest), nil
+	}
+}
