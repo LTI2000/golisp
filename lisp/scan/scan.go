@@ -84,7 +84,7 @@ func (s *Scanner) NextToken() (*Token, error) {
 			return &Token{Identifier, name}, nil
 		}
 	} else {
-		return nil, fmt.Errorf("scan: illegal token: %v", char)
+		return nil, fmt.Errorf("scan: illegal rune: %v", char)
 	}
 }
 
