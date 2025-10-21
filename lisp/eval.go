@@ -2,36 +2,29 @@ package lisp
 
 import "fmt"
 
-// (defun null. (x)
-//   (eq x '()))
-
-// (defun and. (x y)
-//   (cond (x (cond (y 't) ('t '())))
-//         ('t '())))
-
-// (defun not. (x)
-//   (cond (x '())
-//         ('t 't)))
-
-func append_(x, y Expression) Expression {
+func append_(x, y Expression) (Expression, error) {
 	if x == Nil {
-		return y
+		return y, nil
 	} else if car_x, cdr_x, err := Uncons(x); err != nil {
-		panic("append_")
+		return nil, err
+	} else if rest, err := append_(cdr_x, y); err != nil {
+		return nil, err
 	} else {
-		return Cons(car_x, append_(cdr_x, y))
+		return Cons(car_x, rest), nil
 	}
 }
 
-func pair(x, y Expression) Expression {
+func pair(x, y Expression) (Expression, error) {
 	if x == Nil && y == Nil {
-		return Nil
+		return Nil, nil
 	} else if car_x, cdr_x, err := Uncons(x); err != nil {
-		panic("pair")
+		return nil, err
 	} else if car_y, cdr_y, err := Uncons(y); err != nil {
-		panic("pair")
+		return nil, err
+	} else if rest, err := pair(cdr_x, cdr_y); err != nil {
+		return nil, err
 	} else {
-		return Cons(List(car_x, car_y), pair(cdr_x, cdr_y))
+		return Cons(List(car_x, car_y), rest), nil
 	}
 }
 
@@ -125,10 +118,14 @@ func Eval(e, a Expression) (Expression, error) {
 			return nil, err
 		} else if caddar_e, _, err := Uncons(cddar_e); err != nil {
 			return nil, err
-		} else if as, err := evlis(cdr_e, a); err != nil {
+		} else if args, err := evlis(cdr_e, a); err != nil {
+			return nil, err
+		} else if a1, err := pair(cadar_e, args); err != nil {
+			return nil, err
+		} else if a2, err := append_(a1, a); err != nil {
 			return nil, err
 		} else {
-			return Eval(caddar_e, append_(pair(cadar_e, as), a))
+			return Eval(caddar_e, a2)
 		}
 	} else {
 		return nil, fmt.Errorf("Eval: bad expression: %v", e)
