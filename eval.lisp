@@ -2,12 +2,12 @@
   (eq x '()))
 
 (defun and. (x y)
-  (cond (x (cond (y 't) ('t #false)))
-        ('t #false)))
+  (cond (x (cond (y 't) ('t 'nil)))
+        ('t 'nil)))
 
 (defun not. (x)
   (cond ((null. x) 't)
-        (x #false)
+        (x 'nil)
         ('t 't)))
 
 (defun append. (x y)
