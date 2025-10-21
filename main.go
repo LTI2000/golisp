@@ -11,32 +11,12 @@ import (
 
 func main() {
 	fmt.Printf("; welcome to golisp\n")
-	repl(os.Stdin)
+	repl0(os.Stdin)
 }
 
-func repl(r io.Reader) {
+func repl0(r io.Reader) {
 	scanner := scan.NewScanner(r)
 	reader := lisp.NewReader(scanner)
 
-	env := lisp.NIL
-	for {
-		if expression, err := reader.ReadValue(); err != nil {
-			fmt.Printf("read failed: %v\n", err.Error())
-			return
-		} else if binding, err := lisp.Defun(expression); err != nil {
-			fmt.Printf("defun failed: %v\n", err.Error())
-			if result, err := lisp.Eval(expression, env); err != nil {
-				fmt.Printf("eval failed: %v\n", err.Error())
-				return
-			} else {
-				fmt.Printf("; %v\n", result)
-			}
-		} else if env1, err := lisp.Append(binding, env); err != nil {
-			fmt.Printf("Append failed: %v\n", err.Error())
-			return
-		} else {
-			env = env1
-			fmt.Printf("env: %v\n", env)
-		}
-	}
+	lisp.Repl(reader)
 }
