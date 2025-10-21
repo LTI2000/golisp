@@ -20,12 +20,9 @@ func Repl(reader *Reader) {
 			} else {
 				fmt.Printf("; %v\n", result)
 			}
-		} else if env1, err := Append(binding, env); err != nil {
-			fmt.Printf("Append failed: %v\n", err.Error())
-			return
 		} else {
-			env = env1
-			//fmt.Printf("env: %v\n", env)
+			env = Cons(binding, env)
+			fmt.Printf("binding: %v\n", binding)
 		}
 	}
 }

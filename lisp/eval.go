@@ -181,7 +181,7 @@ func Defun(e Expression) (Expression, error) {
 		} else if cadddr_e, _, err := Uncons(cdddr_e); err != nil {
 			return nil, err
 		} else {
-			return List(List(cadr_e, List(LABEL, cadr_e, List(LAMBDA, caddr_e, cadddr_e)))), nil
+			return List(cadr_e, List(LABEL, cadr_e, List(LAMBDA, caddr_e, cadddr_e))), nil
 		}
 	} else {
 		return nil, fmt.Errorf("Defun: bad definition: %v", e)
