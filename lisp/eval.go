@@ -35,7 +35,7 @@ func assoc(x, y Expression) (Expression, error) {
 		return nil, err
 	} else if caar_y, cdar_y, err := Uncons(car_y); err != nil {
 		return nil, err
-	} else if Eq(caar_y, x) {
+	} else if caar_y == x {
 		if cadar_y, _, err := Uncons(cdar_y); err != nil {
 			return nil, err
 		} else {
@@ -52,9 +52,9 @@ func Eval(e, a Expression) (Expression, error) {
 	} else if car_e, cdr_e, err := Uncons(e); err != nil {
 		return nil, err
 	} else if Atom(car_e) {
-		if Eq(car_e, Symbol("quote")) {
+		if car_e == Symbol("quote") {
 			return Car(cdr_e)
-		} else if Eq(car_e, Symbol("atom")) {
+		} else if car_e == Symbol("atom") {
 			if cadr_e, _, err := Uncons(cdr_e); err != nil {
 				return nil, err
 			} else if x, err := Eval(cadr_e, a); err != nil {
@@ -62,7 +62,7 @@ func Eval(e, a Expression) (Expression, error) {
 			} else {
 				return Bool(Atom(x)), nil
 			}
-		} else if Eq(car_e, Symbol("eq")) {
+		} else if car_e == Symbol("eq") {
 			if cadr_e, cddr_e, err := Uncons(cdr_e); err != nil {
 				return nil, err
 			} else if caddr_e, _, err := Uncons(cddr_e); err != nil {
@@ -74,7 +74,7 @@ func Eval(e, a Expression) (Expression, error) {
 			} else {
 				return Bool(Eq(x, y)), nil
 			}
-		} else if Eq(car_e, Symbol("car")) {
+		} else if car_e == Symbol("car") {
 			if cadr_e, _, err := Uncons(cdr_e); err != nil {
 				return nil, err
 			} else if x, err := Eval(cadr_e, a); err != nil {
@@ -82,7 +82,7 @@ func Eval(e, a Expression) (Expression, error) {
 			} else {
 				return Car(x)
 			}
-		} else if Eq(car_e, Symbol("cdr")) {
+		} else if car_e == Symbol("cdr") {
 			if cadr_e, _, err := Uncons(cdr_e); err != nil {
 				return nil, err
 			} else if x, err := Eval(cadr_e, a); err != nil {
@@ -90,7 +90,7 @@ func Eval(e, a Expression) (Expression, error) {
 			} else {
 				return Cdr(x)
 			}
-		} else if Eq(car_e, Symbol("cons")) {
+		} else if car_e == Symbol("cons") {
 			if cadr_e, cddr_e, err := Uncons(cdr_e); err != nil {
 				return nil, err
 			} else if caddr_e, _, err := Uncons(cddr_e); err != nil {
@@ -102,7 +102,7 @@ func Eval(e, a Expression) (Expression, error) {
 			} else {
 				return Cons(x, y), nil
 			}
-		} else if Eq(car_e, Symbol("cond")) {
+		} else if car_e == Symbol("cond") {
 			return evcon(cdr_e, a)
 		} else if f, err := assoc(car_e, a); err != nil {
 			return nil, err
@@ -111,7 +111,7 @@ func Eval(e, a Expression) (Expression, error) {
 		}
 	} else if caar_e, cdar_e, err := Uncons(car_e); err != nil {
 		return nil, err
-	} else if Eq(caar_e, Symbol("label")) {
+	} else if caar_e == Symbol("label") {
 		if cadar_e, cddar_e, err := Uncons(cdar_e); err != nil {
 			return nil, err
 		} else if caddar_e, _, err := Uncons(cddar_e); err != nil {
@@ -119,7 +119,7 @@ func Eval(e, a Expression) (Expression, error) {
 		} else {
 			return Eval(Cons(caddar_e, cdr_e), Cons(List(cadar_e, car_e), a))
 		}
-	} else if Eq(caar_e, Symbol("lambda")) {
+	} else if caar_e == Symbol("lambda") {
 		if cadar_e, cddar_e, err := Uncons(cdar_e); err != nil {
 			return nil, err
 		} else if caddar_e, _, err := Uncons(cddar_e); err != nil {
