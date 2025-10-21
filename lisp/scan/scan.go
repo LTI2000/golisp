@@ -3,6 +3,7 @@ package scan
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"unicode"
 )
@@ -23,8 +24,26 @@ type Token struct {
 	Value string
 }
 
+func tokenTypeString(t *Token) string {
+	switch t.Type {
+	case LeftParen:
+		return "LeftParen"
+	case RightParen:
+		return "RightParen"
+	case Apostrophe:
+		return "Apostrophe"
+	case Identifier:
+		return "Identifier"
+	case Dot:
+		return "Dot"
+	case Eof:
+		return "Eof"
+	default:
+		return "Unknown"
+	}
+}
 func (t *Token) String() string {
-	return t.Value
+	return tokenTypeString(t) + " " + t.Value
 }
 
 type Scanner struct {
@@ -65,7 +84,7 @@ func (s *Scanner) NextToken() (*Token, error) {
 			return &Token{Identifier, name}, nil
 		}
 	} else {
-		return nil, errors.New("illegal token")
+		return nil, fmt.Errorf("scan: illegal token: %v", char)
 	}
 }
 
