@@ -1,4 +1,4 @@
-(eval. '(quote a) '())
+(eval. '(quote metacircular.eval.) '())
 
 (eval. '((label subst 
                 (lambda (x y z)

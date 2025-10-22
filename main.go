@@ -10,11 +10,12 @@ import (
 )
 
 func main() {
-	fmt.Printf("; welcome to golisp\n")
-	repl0(os.Stdin)
+	fmt.Printf(";; welcome to golisp\n")
+	repl(os.Stdin)
+	fmt.Printf(";; repl finished\n")
 }
 
-func repl0(r io.Reader) {
+func repl(r io.Reader) {
 	scanner := scan.NewScanner(r)
 	reader := lisp.NewReader(scanner)
 

@@ -12,17 +12,14 @@ func Repl(reader *Reader) {
 			return
 		} else if expression == nil {
 			return
-		} else if binding, err := Defun(expression); err != nil {
-			//fmt.Printf("defun failed: %v\n", err.Error())
-			if result, err := Eval(expression, env); err != nil {
-				fmt.Printf("eval failed: %v\n", err.Error())
-				return
-			} else {
+		} else if result, bindings, err := Defun(expression, env); err != nil {
+			fmt.Printf("invalid top level expression: %v\n", err.Error())
+			return
+		} else {
+			env = bindings
+			if result != nil {
 				fmt.Printf("; %v\n", result)
 			}
-		} else {
-			env = Cons(binding, env)
-			fmt.Printf("binding: %v\n", binding)
 		}
 	}
 }

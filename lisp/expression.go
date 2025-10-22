@@ -93,12 +93,12 @@ func Cons(car Expression, cdr Expression) Expression {
 	return &cons{car, cdr}
 }
 
-func Uncons(e Expression) (Expression, Expression, error) {
+func Uncons(e Expression, debug string) (Expression, Expression, error) {
 	switch c := e.(type) {
 	case *cons:
 		return c.car, c.cdr, nil
 	default:
-		return nil, nil, fmt.Errorf("Uncons: not a cons: %v", c)
+		return nil, nil, fmt.Errorf("%v Uncons: not a cons: %v", debug, c)
 	}
 }
 
