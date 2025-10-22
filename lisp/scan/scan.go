@@ -111,7 +111,7 @@ func readIdentifier(s *Scanner) error {
 }
 
 func isIdentifierChar(char rune) bool {
-	return char == '.' || unicode.IsLetter(char)
+	return char == '.' || char == ':' || unicode.IsLetter(char)
 }
 
 func maskEof(err error) error {
