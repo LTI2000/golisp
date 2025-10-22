@@ -12,7 +12,7 @@ func Repl(reader *Reader) {
 			return
 		} else if expression == nil {
 			return
-		} else if result, bindings, err := Defun(expression, env); err != nil {
+		} else if result, bindings, err := TopLevel(expression, env); err != nil {
 			fmt.Printf("invalid top level expression: %v\n", err.Error())
 			return
 		} else {

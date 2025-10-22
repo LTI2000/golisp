@@ -143,24 +143,12 @@ func evlis(m, a Expression) (Expression, error) {
 }
 
 func Eval(e, a Expression) (Expression, error) {
-	//fmt.Printf("Eval\n>>> e %v\n>>> a %v\n\n", e, a)
 	return eval(e, a)
 }
 
-func Defun(e Expression, a Expression) (Expression, Expression, error) {
-	//fmt.Printf("Defun\n>>> e %v\n>>> a %v\n\n", e, a)
-	if car_e, cdr_e, err := Uncons(e, "Defun1"); err != nil {
-		return nil, nil, err
-	} else if car_e == DEFUN {
-		if cadr_e, cddr_e, err := Uncons(cdr_e, "Defun2"); err != nil {
-			return nil, nil, err
-		} else if caddr_e, cdddr_e, err := Uncons(cddr_e, "Defun3"); err != nil {
-			return nil, nil, err
-		} else if cadddr_e, _, err := Uncons(cdddr_e, "Defun4"); err != nil {
-			return nil, nil, err
-		} else {
-			return nil, Must2(Append, List(List(cadr_e, List(LABEL, cadr_e, List(LAMBDA, caddr_e, cadddr_e)))), a), nil
-		}
+func TopLevel(e Expression, a Expression) (Expression, Expression, error) {
+	if name, args, body, ok := Match3("(defun NAME ARGS BODY)", e, "NAME", "ARGS", "BODY"); ok {
+		return nil, Must2(Append, List(List(name, List(LABEL, name, List(LAMBDA, args, body)))), a), nil
 	} else {
 		if result, err := Eval(e, a); err != nil {
 			return nil, nil, err
