@@ -106,25 +106,21 @@ func eval(exp, env Expression) (Expression, error) {
 			return eval(b, v2)
 		}
 	} else {
-		return nil, fmt.Errorf("eval: illegal expressoin: %v", exp)
+		return nil, fmt.Errorf("eval: illegal expression: %v", exp)
 	}
 }
 
 func evcon(clauses, env Expression) (Expression, error) {
-	if car_c, cdr_c, err := Uncons(clauses, "evcon1"); err != nil {
-		return nil, err
-	} else if caar_c, cdar_c, err := Uncons(car_c, "evcon2"); err != nil {
-		return nil, err
-	} else if x, err := eval(caar_c, env); err != nil {
-		return nil, err
-	} else if x != NIL {
-		if cadar_c, _, err := Uncons(cdar_c, "evcon3"); err != nil {
+	if test, consequent, alternates, ok := Match3("((TEST CONSEQUENT) . ALTERNATES:list)", clauses, "TEST", "CONSEQUENT", "ALTERNATES"); ok {
+		if t, err := eval(test, env); err != nil {
 			return nil, err
+		} else if t != NIL {
+			return eval(consequent, env)
 		} else {
-			return eval(cadar_c, env)
+			return evcon(alternates, env)
 		}
 	} else {
-		return evcon(cdr_c, env)
+		return nil, fmt.Errorf("evcon: illegal clauses: %v", clauses)
 	}
 }
 
