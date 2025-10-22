@@ -145,15 +145,3 @@ func evlis(m, a Expression) (Expression, error) {
 func Eval(e, a Expression) (Expression, error) {
 	return eval(e, a)
 }
-
-func TopLevel(e Expression, a Expression) (Expression, Expression, error) {
-	if name, args, body, ok := Match3("(defun NAME ARGS BODY)", e, "NAME", "ARGS", "BODY"); ok {
-		return nil, Must2(Append, List(List(name, List(LABEL, name, List(LAMBDA, args, body)))), a), nil
-	} else {
-		if result, err := Eval(e, a); err != nil {
-			return nil, nil, err
-		} else {
-			return result, a, nil
-		}
-	}
-}
