@@ -50,12 +50,12 @@ type symbol struct {
 var symbols map[string]*symbol = make(map[string]*symbol)
 
 func Symbol(name string) Expression {
-	expression, ok := symbols[name]
+	s, ok := symbols[name]
 	if !ok {
-		expression = &symbol{name}
-		symbols[name] = expression
+		s = &symbol{name}
+		symbols[name] = s
 	}
-	return expression
+	return s
 }
 
 func (*symbol) prim_atom() bool {

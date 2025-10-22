@@ -47,94 +47,66 @@ func assoc(x, y Expression) (Expression, error) {
 }
 
 func Eval(e, a Expression) (Expression, error) {
-	if Atom(e) {
+	if ok := Match0("X:atom", e); ok {
 		return assoc(e, a)
-	} else if car_e, cdr_e, err := Uncons(e); err != nil {
-		return nil, err
-	} else if Atom(car_e) {
-		if car_e == QUOTE {
-			return Car(cdr_e)
-		} else if car_e == ATOM {
-			if cadr_e, _, err := Uncons(cdr_e); err != nil {
-				return nil, err
-			} else if x, err := Eval(cadr_e, a); err != nil {
-				return nil, err
-			} else {
-				return Bool(Atom(x)), nil
-			}
-		} else if car_e == EQ {
-			if cadr_e, cddr_e, err := Uncons(cdr_e); err != nil {
-				return nil, err
-			} else if caddr_e, _, err := Uncons(cddr_e); err != nil {
-				return nil, err
-			} else if x, err := Eval(cadr_e, a); err != nil {
-				return nil, err
-			} else if y, err := Eval(caddr_e, a); err != nil {
-				return nil, err
-			} else {
-				return Bool(Eq(x, y)), nil
-			}
-		} else if car_e == CAR {
-			if cadr_e, _, err := Uncons(cdr_e); err != nil {
-				return nil, err
-			} else if x, err := Eval(cadr_e, a); err != nil {
-				return nil, err
-			} else {
-				return Car(x)
-			}
-		} else if car_e == CDR {
-			if cadr_e, _, err := Uncons(cdr_e); err != nil {
-				return nil, err
-			} else if x, err := Eval(cadr_e, a); err != nil {
-				return nil, err
-			} else {
-				return Cdr(x)
-			}
-		} else if car_e == CONS {
-			if cadr_e, cddr_e, err := Uncons(cdr_e); err != nil {
-				return nil, err
-			} else if caddr_e, _, err := Uncons(cddr_e); err != nil {
-				return nil, err
-			} else if x, err := Eval(cadr_e, a); err != nil {
-				return nil, err
-			} else if y, err := Eval(caddr_e, a); err != nil {
-				return nil, err
-			} else {
-				return Cons(x, y), nil
-			}
-		} else if car_e == COND {
-			return evcon(cdr_e, a)
-		} else if f, err := assoc(car_e, a); err != nil {
+	} else if x, ok := Match1("(quote X)", e, "X"); ok {
+		return x, nil
+	} else if x, ok := Match1("(atom X)", e, "X"); ok {
+		if a0, err := Eval(x, a); err != nil {
 			return nil, err
 		} else {
-			return Eval(Cons(f, cdr_e), a)
+			return Bool(Atom(a0)), nil
 		}
-	} else if caar_e, cdar_e, err := Uncons(car_e); err != nil {
-		return nil, err
-	} else if caar_e == LABEL {
-		if cadar_e, cddar_e, err := Uncons(cdar_e); err != nil {
+	} else if x, y, ok := Match2("(eq X Y)", e, "X", "Y"); ok {
+		if a0, err := Eval(x, a); err != nil {
 			return nil, err
-		} else if caddar_e, _, err := Uncons(cddar_e); err != nil {
+		} else if b0, err := Eval(y, a); err != nil {
 			return nil, err
 		} else {
-			return Eval(Cons(caddar_e, cdr_e), Cons(List(cadar_e, car_e), a))
+			return Bool(Eq(a0, b0)), nil
 		}
-	} else if caar_e == LAMBDA {
-		if cadar_e, cddar_e, err := Uncons(cdar_e); err != nil {
-			return nil, err
-		} else if caddar_e, _, err := Uncons(cddar_e); err != nil {
-			return nil, err
-		} else if args, err := evlis(cdr_e, a); err != nil {
-			return nil, err
-		} else if a1, err := pair(cadar_e, args); err != nil {
-			return nil, err
-		} else if a2, err := Append(a1, a); err != nil {
+	} else if x, ok := Match1("(car X)", e, "X"); ok {
+		if a0, err := Eval(x, a); err != nil {
 			return nil, err
 		} else {
-			return Eval(caddar_e, a2)
+			return Car(a0)
+		}
+	} else if x, ok := Match1("(cdr X)", e, "X"); ok {
+		if a0, err := Eval(x, a); err != nil {
+			return nil, err
+		} else {
+			return Cdr(a0)
+		}
+	} else if x, y, ok := Match2("(cons X Y)", e, "X", "Y"); ok {
+		if a0, err := Eval(x, a); err != nil {
+			return nil, err
+		} else if b0, err := Eval(y, a); err != nil {
+			return nil, err
+		} else {
+			return Cons(a0, b0), nil
+		}
+	} else if c, ok := Match1("(cond . C:list)", e, "C"); ok {
+		return evcon(c, a)
+	} else if x, y, ok := Match2("(X:atom . Y:list)", e, "X", "Y"); ok {
+		if f, err := assoc(x, a); err != nil {
+			return nil, err
+		} else {
+			return Eval(Cons(f, y), a)
+		}
+	} else if n, f, p, ok := Match3("((label N F) . P:list)", e, "N", "F", "P"); ok {
+		return Eval(Cons(f, p), Cons(List(n, Must(Car, e)), a))
+	} else if p, b, x, ok := Match3("((lambda P B) . X:list)", e, "P", "B", "X"); ok {
+		if v0, err := evlis(x, a); err != nil {
+			return nil, err
+		} else if v1, err := pair(p, v0); err != nil {
+			return nil, err
+		} else if v2, err := Append(v1, a); err != nil {
+			return nil, err
+		} else {
+			return Eval(b, v2)
 		}
 	} else {
-		return nil, fmt.Errorf("Eval: bad expression: %v", e)
+		return nil, fmt.Errorf("eval: illegal expressoin: %v", e)
 	}
 }
 
