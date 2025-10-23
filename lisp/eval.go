@@ -55,7 +55,7 @@ func eval(exp Expression, env Environment) (Expression, error) {
 		if v0, err := evlis(x, env); err != nil {
 			return nil, err
 		} else {
-			return eval(b, ExtendList(SliceMapped(p, func(e Expression) string { return e.String() }), Slice(v0), env))
+			return eval(b, ExtendList(SliceMapped(func(e Expression) string { return e.String() }, p), Slice(v0), env))
 		}
 	} else {
 		return nil, fmt.Errorf("eval: malformed expression: %v", exp)

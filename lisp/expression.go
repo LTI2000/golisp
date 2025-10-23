@@ -131,20 +131,25 @@ loop:
 
 // create a (possibly empty) list from an expression slice.
 func List(slice ...Expression) Expression {
-	list := NIL
+	return ListMapped(Id, slice...)
+}
+
+// create a (possibly empty) list from an expression slice. Uses f to map elements to the source type T.
+func ListMapped[T any](f func(T) Expression, slice ...T) (list Expression) {
+	list = NIL
 	for i := len(slice) - 1; i >= 0; i-- {
-		list = Cons(slice[i], list)
+		list = Cons(f(slice[i]), list)
 	}
-	return list
+	return
 }
 
 // create a (possibly empty) expression slice from a list. Panics if list is not a proper list.
-func Slice(list Expression) (slice []Expression) {
-	return SliceMapped(list, Id)
+func Slice(list Expression) []Expression {
+	return SliceMapped(Id, list)
 }
 
 // create a (possibly empty) slice from a list. Uses f to map elements to the target type T. Panics if list is not a proper list.
-func SliceMapped[T any](list Expression, f func(e Expression) T) (slice []T) {
+func SliceMapped[T any](f func(Expression) T, list Expression) (slice []T) {
 	for list != NIL {
 		slice = append(slice, f(Must(Car, list)))
 		list = Must(Cdr, list)
