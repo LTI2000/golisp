@@ -14,20 +14,6 @@ func Append(x, y Expression) (Expression, error) {
 	}
 }
 
-func pair(x, y Expression) (Expression, error) {
-	if x == NIL && y == NIL {
-		return NIL, nil
-	} else if car_x, cdr_x, err := Uncons(x, "pair1"); err != nil {
-		return nil, err
-	} else if car_y, cdr_y, err := Uncons(y, "pair2"); err != nil {
-		return nil, err
-	} else if rest, err := pair(cdr_x, cdr_y); err != nil {
-		return nil, err
-	} else {
-		return Cons(List(car_x, car_y), rest), nil
-	}
-}
-
 func assoc(x, y Expression) (Expression, error) {
 	if y == NIL {
 		return nil, fmt.Errorf("%v: unbound variable", x)
@@ -99,7 +85,7 @@ func eval(exp Expression, env Environment) (Expression, error) {
 		if v0, err := evlis(x, env); err != nil {
 			return nil, err
 		} else {
-			return eval(b, ExtendList(p, v0, env))
+			return eval(b, ExtendList(Slice(p), Slice(v0), env))
 		}
 	} else {
 		return nil, fmt.Errorf("eval: illegal expression: %v", exp)

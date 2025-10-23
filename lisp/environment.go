@@ -15,17 +15,16 @@ func Extend(name Expression, value Expression, env Environment) Environment {
 	return &extended_env{name, value, env}
 }
 
-func ExtendList(names Expression, values Expression, env Environment) Environment {
-	if names == NIL && values == NIL {
-		return env
+func ExtendList(names []Expression, values []Expression, env Environment) Environment {
+	nameCount := len(names)
+	valueCount := len(values)
+	if nameCount != valueCount {
+		panic("name/value count mismatch")
 	} else {
-		if name, names, err := Uncons(names, "ExtendList1"); err != nil {
-			panic(err)
-		} else if value, values, err := Uncons(values, "ExtendList2"); err != nil {
-			panic(err)
-		} else {
-			return Extend(name, value, ExtendList(names, values, env))
+		for i := nameCount - 1; i >= 0; i-- {
+			env = Extend(names[i], values[i], env)
 		}
+		return env
 	}
 }
 

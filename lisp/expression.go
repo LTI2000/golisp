@@ -138,13 +138,22 @@ loop:
 
 // Utils
 
-// create a (possibly empty) List from a Value slice.
+// create a (possibly empty) list from an expression slice.
 func List(slice ...Expression) Expression {
 	list := NIL
 	for i := len(slice) - 1; i >= 0; i-- {
 		list = Cons(slice[i], list)
 	}
 	return list
+}
+
+// create a (possibly empty) expression slice from a list. Panics if list is not a proper list.
+func Slice(list Expression) (slice []Expression) {
+	for list != NIL {
+		slice = append(slice, Must(Car, list))
+		list = Must(Cdr, list)
+	}
+	return
 }
 
 func Bool(b bool) Expression {
