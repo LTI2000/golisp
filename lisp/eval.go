@@ -88,7 +88,7 @@ func eval(exp Expression, env Environment) (Expression, error) {
 			return eval(b, ExtendList(Slice(p), Slice(v0), env))
 		}
 	} else {
-		return nil, fmt.Errorf("eval: illegal expression: %v", exp)
+		return nil, fmt.Errorf("eval: malformed expression: %v", exp)
 	}
 }
 
@@ -102,21 +102,23 @@ func evcon(clauses Expression, env Environment) (Expression, error) {
 			return evcon(alternates, env)
 		}
 	} else {
-		return nil, fmt.Errorf("evcon: illegal clauses: %v", clauses)
+		return nil, fmt.Errorf("evcon: malformed clauses: %v", clauses)
 	}
 }
 
 func evlis(exps Expression, env Environment) (Expression, error) {
-	if exps == NIL {
+	if ok := Match0("()", exps); ok {
 		return NIL, nil
-	} else if car_m, cdr_m, err := Uncons(exps, "evlis1"); err != nil {
-		return nil, err
-	} else if first, err := eval(car_m, env); err != nil {
-		return nil, err
-	} else if rest, err := evlis(cdr_m, env); err != nil {
-		return nil, err
+	} else if head, tail, ok := Match2("(HEAD . TAIL:list)", exps, "HEAD", "TAIL"); ok {
+		if first, err := eval(head, env); err != nil {
+			return nil, err
+		} else if rest, err := evlis(tail, env); err != nil {
+			return nil, err
+		} else {
+			return Cons(first, rest), nil
+		}
 	} else {
-		return Cons(first, rest), nil
+		return nil, fmt.Errorf("evlis: malformed list: %v", exps)
 	}
 }
 
