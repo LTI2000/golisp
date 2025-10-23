@@ -10,7 +10,7 @@ func Must[A, R any](f func(A) (R, error), a A) R {
 
 func Must2[A, B, R any](f func(A, B) (R, error), a A, b B) R {
 	if r, err := f(a, b); err != nil {
-		panic("Must() failed: " + err.Error())
+		panic("Must2() failed: " + err.Error())
 	} else {
 		return r
 	}
