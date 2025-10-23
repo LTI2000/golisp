@@ -40,13 +40,13 @@ type symbol struct {
 	name string
 }
 
-var symbols map[string]*symbol = make(map[string]*symbol)
+var symbolCache map[string]*symbol = make(map[string]*symbol)
 
 func Symbol(name string) Expression {
-	s, ok := symbols[name]
+	s, ok := symbolCache[name]
 	if !ok {
 		s = &symbol{name}
-		symbols[name] = s
+		symbolCache[name] = s
 	}
 	return s
 }

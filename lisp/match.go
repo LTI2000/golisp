@@ -5,13 +5,13 @@ import (
 	"unicode"
 )
 
-var patterns map[string]Expression = make(map[string]Expression)
+var patternCache map[string]Expression = make(map[string]Expression)
 
 func makePattern(src string) Expression {
-	pattern, ok := patterns[src]
+	pattern, ok := patternCache[src]
 	if !ok {
 		pattern = Must(Read, src)
-		patterns[src] = pattern
+		patternCache[src] = pattern
 	}
 	return pattern
 }
@@ -28,7 +28,6 @@ func Match1(pattern string, expression Expression, name1 string) (Expression, bo
 		return nil, false
 	} else if value1, err := bindings.Lookup(name1); err != nil {
 		return nil, false
-
 	} else {
 		return value1, true
 	}
