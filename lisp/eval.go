@@ -2,36 +2,6 @@ package lisp
 
 import "fmt"
 
-func Append(x, y Expression) (Expression, error) {
-	if x == NIL {
-		return y, nil
-	} else if car_x, cdr_x, err := Uncons(x, "Append1"); err != nil {
-		return nil, err
-	} else if rest, err := Append(cdr_x, y); err != nil {
-		return nil, err
-	} else {
-		return Cons(car_x, rest), nil
-	}
-}
-
-func assoc(x, y Expression) (Expression, error) {
-	if y == NIL {
-		return nil, fmt.Errorf("%v: unbound variable", x)
-	} else if car_y, cdr_y, err := Uncons(y, "assoc1"); err != nil {
-		return nil, err
-	} else if caar_y, cdar_y, err := Uncons(car_y, "assoc2"); err != nil {
-		return nil, err
-	} else if caar_y == x {
-		if cadar_y, _, err := Uncons(cdar_y, "assoc3"); err != nil {
-			return nil, err
-		} else {
-			return cadar_y, nil
-		}
-	} else {
-		return assoc(x, cdr_y)
-	}
-}
-
 func eval(exp Expression, env Environment) (Expression, error) {
 	if ok := Match0("X:atom", exp); ok {
 		return env.Lookup(exp)

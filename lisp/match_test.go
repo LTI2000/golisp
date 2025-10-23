@@ -49,35 +49,35 @@ func TestMatch1(t *testing.T) {
 func TestMatch(t *testing.T) {
 	for _, in := range [][3]string{
 		{"(quote X)", "'x",
-			"((X x))"},
+			"[X := x]"},
 		{"(atom X)", "(atom 'x)",
-			"((X (quote x)))"},
+			"[X := (quote x)]"},
 		{"(eq X Y)", "(eq x y)",
-			"((X x) (Y y))"},
+			"[X := x, Y := y]"},
 		{"(car X)", "(car x)",
-			"((X x))"},
+			"[X := x]"},
 		{"(cdr X)", "(cdr x)",
-			"((X x))"},
+			"[X := x]"},
 		{"(cons X Y)", "(cons x y)",
-			"((X x) (Y y))"},
+			"[X := x, Y := y]"},
 		{"(cond . C)", "(cond (x 'nil) ('t 't))",
-			"((C ((x (quote nil)) ((quote t) (quote t)))))"},
+			"[C := ((x (quote nil)) ((quote t) (quote t)))]"},
 		{"(label F (lambda P E))", "(label id (lambda (x) x))",
-			"((F id) (P (x)) (E x))"},
+			"[F := id, P := (x), E := x]"},
 		{"((lambda P E) A)", "((lambda (x) x) 't)",
-			"((P (x)) (E x) (A (quote t)))"},
+			"[P := (x), E := x, A := (quote t)]"},
 		{"(defun F P E)", "(defun id (x) x)",
-			"((F id) (P (x)) (E x))"},
+			"[F := id, P := (x), E := x]"},
 		{"X", "x",
-			"((X x))"},
+			"[X := x]"},
 		{"X:atom", "x",
-			"((X x))"},
+			"[X := x]"},
 	} {
 		pattern := Must(Read, in[0])
 		expression := Must(Read, in[1])
-		expected := Must(Read, in[2])
+		expected := in[2]
 		if actual, ok :=
-			match(pattern, expression); !ok || expected.String() != actual.String() {
+			match(pattern, expression); !ok || expected != actual.String() {
 			t.Errorf("expected %v, actual %v", expected, actual)
 		}
 	}

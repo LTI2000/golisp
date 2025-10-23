@@ -26,7 +26,7 @@ func Match0(pattern string, expression Expression) bool {
 func Match1(pattern string, expression Expression, name1 string) (Expression, bool) {
 	if bindings, ok := match(makePattern(pattern), expression); !ok {
 		return nil, false
-	} else if value1, err := assoc(Symbol(name1), bindings); err != nil {
+	} else if value1, err := bindings.Lookup(Symbol(name1)); err != nil {
 		return nil, false
 
 	} else {
@@ -37,9 +37,9 @@ func Match1(pattern string, expression Expression, name1 string) (Expression, bo
 func Match2(pattern string, expression Expression, name1, name2 string) (Expression, Expression, bool) {
 	if bindings, ok := match(makePattern(pattern), expression); !ok {
 		return nil, nil, false
-	} else if value1, err := assoc(Symbol(name1), bindings); err != nil {
+	} else if value1, err := bindings.Lookup(Symbol(name1)); err != nil {
 		return nil, nil, false
-	} else if value2, err := assoc(Symbol(name2), bindings); err != nil {
+	} else if value2, err := bindings.Lookup(Symbol(name2)); err != nil {
 		return nil, nil, false
 	} else {
 		return value1, value2, true
@@ -49,18 +49,18 @@ func Match2(pattern string, expression Expression, name1, name2 string) (Express
 func Match3(pattern string, expression Expression, name1, name2, name3 string) (Expression, Expression, Expression, bool) {
 	if bindings, ok := match(makePattern(pattern), expression); !ok {
 		return nil, nil, nil, false
-	} else if value1, err := assoc(Symbol(name1), bindings); err != nil {
+	} else if value1, err := bindings.Lookup(Symbol(name1)); err != nil {
 		return nil, nil, nil, false
-	} else if value2, err := assoc(Symbol(name2), bindings); err != nil {
+	} else if value2, err := bindings.Lookup(Symbol(name2)); err != nil {
 		return nil, nil, nil, false
-	} else if value3, err := assoc(Symbol(name3), bindings); err != nil {
+	} else if value3, err := bindings.Lookup(Symbol(name3)); err != nil {
 		return nil, nil, nil, false
 	} else {
 		return value1, value2, value3, true
 	}
 }
 
-func match(pattern, expression Expression) (Expression, bool) {
+func match(pattern, expression Expression) (Environment, bool) {
 	switch p := pattern.(type) {
 	case *symbol:
 		return matchSymbolPattern(p, expression)
@@ -71,19 +71,36 @@ func match(pattern, expression Expression) (Expression, bool) {
 	}
 }
 
-func matchSymbolPattern(s *symbol, expression Expression) (Expression, bool) {
+func matchSymbolPattern(s *symbol, expression Expression) (Environment, bool) {
 	if name, pred, ok := extractNameAndPredicate(s); ok {
 		if pred(expression) {
-			return List(List(name, expression)), true
+			return Extend(name, expression, NewEnvironment()), true
 		} else {
 			return nil, false
 		}
 	} else if s == expression {
-		return NIL, true
+		return NewEnvironment(), true
 	} else {
 		return nil, false
 	}
 }
+
+func matchPairPattern(c *cons, expression Expression) (Environment, bool) {
+	switch e := expression.(type) {
+	case *cons:
+		if b1, ok := match(c.car, e.car); !ok {
+			return nil, false
+		} else if b2, ok := match(c.cdr, e.cdr); !ok {
+			return nil, false
+		} else {
+			return Merge(b1, b2), true
+		}
+	default:
+		return nil, false
+	}
+}
+
+// utilities
 
 func extractNameAndPredicate(s *symbol) (Expression, func(Expression) bool, bool) {
 	if name, predicate, found := strings.Cut(s.name, ":"); found {
@@ -104,24 +121,6 @@ func extractNameAndPredicate(s *symbol) (Expression, func(Expression) bool, bool
 	}
 }
 
-func matchPairPattern(c *cons, expression Expression) (Expression, bool) {
-	switch e := expression.(type) {
-	case *cons:
-		if b1, ok := match(c.car, e.car); !ok {
-			return nil, false
-		} else if b2, ok := match(c.cdr, e.cdr); !ok {
-			return nil, false
-		} else if b, err := Append(b1, b2); err != nil {
-			return nil, false
-		} else {
-			return b, true
-		}
-	default:
-		return nil, false
-	}
-}
-
-// utilities
 func isUpperCase(s string) bool {
 	for _, r := range s {
 		if !unicode.IsUpper(r) {

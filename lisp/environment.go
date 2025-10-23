@@ -1,6 +1,9 @@
 package lisp
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type Environment interface {
 	Lookup(name Expression) (Expression, error)
@@ -25,6 +28,15 @@ func ExtendList(names []Expression, values []Expression, env Environment) Enviro
 			env = Extend(names[i], values[i], env)
 		}
 		return env
+	}
+}
+
+func Merge(e1, e2 Environment) Environment {
+	switch e := e1.(type) {
+	case *extended_env:
+		return Extend(e.name, e.value, Merge(e.next, e2))
+	default:
+		return e2
 	}
 }
 
@@ -58,5 +70,27 @@ func (e *extended_env) Lookup(name Expression) (Expression, error) {
 }
 
 func (e *extended_env) String() string {
-	panic("unimplemented")
+	var sb strings.Builder
+	sb.WriteString("[")
+
+	sb.WriteString(e.name.String())
+	sb.WriteString(" := ")
+	sb.WriteString(e.value.String())
+	rest := e.next
+loop:
+	for {
+		switch e := rest.(type) {
+		case *extended_env:
+			sb.WriteString(", ")
+			sb.WriteString(e.name.String())
+			sb.WriteString(" := ")
+			sb.WriteString(e.value.String())
+			rest = e.next
+		default:
+			break loop
+		}
+	}
+
+	sb.WriteString("]")
+	return sb.String()
 }
