@@ -1,6 +1,7 @@
 package scan
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 )
@@ -79,6 +80,17 @@ func TestIllegalInput(t *testing.T) {
 	}
 }
 
+func TestReaderError(t *testing.T) {
+	reader := &mockReader{}
+	scanner := NewScanner(reader)
+
+	if _, err := scanner.NextToken(); err == nil {
+		t.Fatalf("expected err")
+	} else if expected, actual := "mock reader", err.Error(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+}
+
 func TestTokenString(t *testing.T) {
 	reader := strings.NewReader("'(x . y)")
 	scanner := NewScanner(reader)
@@ -104,6 +116,9 @@ func TestTokenString(t *testing.T) {
 	if expected, actual := "Eof ", mustScan(scanner).String(); expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
+	if expected, actual := "Unknown ?", (&Token{-1, "?"}).String(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
 }
 
 func mustScan(scanner *Scanner) *Token {
@@ -112,4 +127,12 @@ func mustScan(scanner *Scanner) *Token {
 	} else {
 		return token
 	}
+}
+
+type mockReader struct {
+}
+
+func (m *mockReader) Read(p []byte) (n int, err error) {
+	fmt.Printf("Read %v", len(p))
+	return 0, fmt.Errorf("mock reader")
 }
