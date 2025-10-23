@@ -5,6 +5,8 @@ import (
 	"strings"
 )
 
+// Environment
+
 type Environment interface {
 	Lookup(name string) (Expression, error)
 	String() string
@@ -40,7 +42,7 @@ func Merge(e1, e2 Environment) Environment {
 	}
 }
 
-//
+// empty_env
 
 type empty_env struct{}
 
@@ -52,7 +54,7 @@ func (e *empty_env) String() string {
 	return "[]"
 }
 
-//
+// extended_env
 
 type extended_env struct {
 	name  string

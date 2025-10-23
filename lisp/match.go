@@ -23,6 +23,7 @@ func Match0(pattern string, expression Expression) bool {
 		return true
 	}
 }
+
 func Match1(pattern string, expression Expression, name1 string) (Expression, bool) {
 	if bindings, ok := match(makePattern(pattern), expression); !ok {
 		return nil, false
