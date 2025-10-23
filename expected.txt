@@ -1,0 +1,5 @@
+;; welcome to golisp
+; (a m (a m c) d)
+; metacircular.eval.
+; (a m (a m c) d)
+;; repl finished
