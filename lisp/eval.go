@@ -4,7 +4,7 @@ import "fmt"
 
 func eval(exp Expression, env Environment) (Expression, error) {
 	if ok := Match0("X:atom", exp); ok {
-		return env.Lookup(exp)
+		return env.Lookup(exp.String())
 	} else if x, ok := Match1("(quote X)", exp, "X"); ok {
 		return x, nil
 	} else if x, ok := Match1("(atom X)", exp, "X"); ok {
@@ -44,18 +44,18 @@ func eval(exp Expression, env Environment) (Expression, error) {
 	} else if c, ok := Match1("(cond . C:list)", exp, "C"); ok {
 		return evcon(c, env)
 	} else if x, y, ok := Match2("(X:atom . Y:list)", exp, "X", "Y"); ok {
-		if f, err := env.Lookup(x); err != nil {
+		if f, err := env.Lookup(x.String()); err != nil {
 			return nil, err
 		} else {
 			return eval(Cons(f, y), env)
 		}
 	} else if n, f, p, ok := Match3("((label N F) . P:list)", exp, "N", "F", "P"); ok {
-		return eval(Cons(f, p), Extend(n, Must(Car, exp), env))
+		return eval(Cons(f, p), Extend(n.String(), Must(Car, exp), env))
 	} else if p, b, x, ok := Match3("((lambda P B) . X:list)", exp, "P", "B", "X"); ok {
 		if v0, err := evlis(x, env); err != nil {
 			return nil, err
 		} else {
-			return eval(b, ExtendList(Slice(p), Slice(v0), env))
+			return eval(b, ExtendList(SliceMapped(p, func(e Expression) string { return e.String() }), Slice(v0), env))
 		}
 	} else {
 		return nil, fmt.Errorf("eval: malformed expression: %v", exp)

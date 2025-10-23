@@ -26,7 +26,7 @@ func Match0(pattern string, expression Expression) bool {
 func Match1(pattern string, expression Expression, name1 string) (Expression, bool) {
 	if bindings, ok := match(makePattern(pattern), expression); !ok {
 		return nil, false
-	} else if value1, err := bindings.Lookup(Symbol(name1)); err != nil {
+	} else if value1, err := bindings.Lookup(name1); err != nil {
 		return nil, false
 
 	} else {
@@ -37,9 +37,9 @@ func Match1(pattern string, expression Expression, name1 string) (Expression, bo
 func Match2(pattern string, expression Expression, name1, name2 string) (Expression, Expression, bool) {
 	if bindings, ok := match(makePattern(pattern), expression); !ok {
 		return nil, nil, false
-	} else if value1, err := bindings.Lookup(Symbol(name1)); err != nil {
+	} else if value1, err := bindings.Lookup(name1); err != nil {
 		return nil, nil, false
-	} else if value2, err := bindings.Lookup(Symbol(name2)); err != nil {
+	} else if value2, err := bindings.Lookup(name2); err != nil {
 		return nil, nil, false
 	} else {
 		return value1, value2, true
@@ -49,11 +49,11 @@ func Match2(pattern string, expression Expression, name1, name2 string) (Express
 func Match3(pattern string, expression Expression, name1, name2, name3 string) (Expression, Expression, Expression, bool) {
 	if bindings, ok := match(makePattern(pattern), expression); !ok {
 		return nil, nil, nil, false
-	} else if value1, err := bindings.Lookup(Symbol(name1)); err != nil {
+	} else if value1, err := bindings.Lookup(name1); err != nil {
 		return nil, nil, nil, false
-	} else if value2, err := bindings.Lookup(Symbol(name2)); err != nil {
+	} else if value2, err := bindings.Lookup(name2); err != nil {
 		return nil, nil, nil, false
-	} else if value3, err := bindings.Lookup(Symbol(name3)); err != nil {
+	} else if value3, err := bindings.Lookup(name3); err != nil {
 		return nil, nil, nil, false
 	} else {
 		return value1, value2, value3, true
@@ -102,14 +102,14 @@ func matchPairPattern(c *cons, expression Expression) (Environment, bool) {
 
 // utilities
 
-func extractNameAndPredicate(s *symbol) (Expression, func(Expression) bool, bool) {
+func extractNameAndPredicate(s *symbol) (string, func(Expression) bool, bool) {
 	if name, predicate, found := strings.Cut(s.name, ":"); found {
 		if isUpperCase(name) {
 			switch predicate {
 			case "atom":
-				return Symbol(name), Atom, true
+				return name, Atom, true
 			case "list":
-				return Symbol(name), func(e Expression) bool { return e == NIL || !Atom(e) }, true
+				return name, func(e Expression) bool { return e == NIL || !Atom(e) }, true
 			default:
 				panic("unknown match predicate: " + predicate)
 			}
@@ -117,7 +117,7 @@ func extractNameAndPredicate(s *symbol) (Expression, func(Expression) bool, bool
 			panic("bad match symbol: " + s.String())
 		}
 	} else {
-		return s, func(Expression) bool { return true }, isUpperCase(s.name)
+		return s.String(), func(Expression) bool { return true }, isUpperCase(s.name)
 	}
 }
 

@@ -6,7 +6,7 @@ import (
 )
 
 type Environment interface {
-	Lookup(name Expression) (Expression, error)
+	Lookup(name string) (Expression, error)
 	String() string
 }
 
@@ -14,11 +14,11 @@ func NewEnvironment() Environment {
 	return &empty_env{}
 }
 
-func Extend(name Expression, value Expression, env Environment) Environment {
+func Extend(name string, value Expression, env Environment) Environment {
 	return &extended_env{name, value, env}
 }
 
-func ExtendList(names []Expression, values []Expression, env Environment) Environment {
+func ExtendList(names []string, values []Expression, env Environment) Environment {
 	nameCount := len(names)
 	valueCount := len(values)
 	if nameCount != valueCount {
@@ -44,7 +44,7 @@ func Merge(e1, e2 Environment) Environment {
 
 type empty_env struct{}
 
-func (e *empty_env) Lookup(name Expression) (Expression, error) {
+func (e *empty_env) Lookup(name string) (Expression, error) {
 	return nil, fmt.Errorf("%v is unbound", name)
 }
 
@@ -55,12 +55,12 @@ func (e *empty_env) String() string {
 //
 
 type extended_env struct {
-	name  Expression
+	name  string
 	value Expression
 	next  Environment
 }
 
-func (e *extended_env) Lookup(name Expression) (Expression, error) {
+func (e *extended_env) Lookup(name string) (Expression, error) {
 	if name == e.name {
 		return e.value, nil
 	} else {
@@ -73,7 +73,7 @@ func (e *extended_env) String() string {
 	var sb strings.Builder
 	sb.WriteString("[")
 
-	sb.WriteString(e.name.String())
+	sb.WriteString(e.name)
 	sb.WriteString(" := ")
 	sb.WriteString(e.value.String())
 	rest := e.next
@@ -82,7 +82,7 @@ loop:
 		switch e := rest.(type) {
 		case *extended_env:
 			sb.WriteString(", ")
-			sb.WriteString(e.name.String())
+			sb.WriteString(e.name)
 			sb.WriteString(" := ")
 			sb.WriteString(e.value.String())
 			rest = e.next

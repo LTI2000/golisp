@@ -9,7 +9,7 @@ func TestEval(t *testing.T) {
 		exp string
 		env Environment
 	}{
-		{"a", "x", Extend(Symbol("x"), Symbol("a"), env)},
+		{"a", "x", Extend("x", Symbol("a"), env)},
 		{"a", "(quote a)", env},
 		{"t", "(atom 'a)", env},
 		{"nil", "(atom '(a b))", env},
@@ -19,7 +19,7 @@ func TestEval(t *testing.T) {
 		{"b", "(cdr '(a . b))", env},
 		{"(a . b)", "(cons 'a 'b)", env},
 		{"no", "(cond ((atom '(a b)) 'yes) ('t 'no))", env},
-		{"(a . b)", "(kons 'a 'b)", Extend(Symbol("kons"), Symbol("cons"), env)},
+		{"(a . b)", "(kons 'a 'b)", Extend("kons", Symbol("cons"), env)},
 		{
 			`(a m (a m c) d)`,
 			`((label subst 

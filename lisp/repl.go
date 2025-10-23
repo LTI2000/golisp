@@ -27,7 +27,7 @@ func Repl(reader *Reader) {
 // handles defun expressions, as well as general expression evaluation
 func evalTopLevel(exp Expression, env Environment) (Expression, Environment, error) {
 	if name, args, body, ok := Match3("(defun NAME ARGS BODY)", exp, "NAME", "ARGS", "BODY"); ok {
-		return nil, Extend(name, List(LABEL, name, List(LAMBDA, args, body)), env), nil
+		return nil, Extend(name.String(), List(LABEL, name, List(LAMBDA, args, body)), env), nil
 	} else {
 		if result, err := Eval(exp, env); err != nil {
 			return nil, nil, err

@@ -140,8 +140,13 @@ func List(slice ...Expression) Expression {
 
 // create a (possibly empty) expression slice from a list. Panics if list is not a proper list.
 func Slice(list Expression) (slice []Expression) {
+	return SliceMapped(list, Id)
+}
+
+// create a (possibly empty) slice from a list. Uses f to map elements to the target type T. Panics if list is not a proper list.
+func SliceMapped[T any](list Expression, f func(e Expression) T) (slice []T) {
 	for list != NIL {
-		slice = append(slice, Must(Car, list))
+		slice = append(slice, f(Must(Car, list)))
 		list = Must(Cdr, list)
 	}
 	return

@@ -16,6 +16,10 @@ func Must2[A, B, R any](f func(A, B) (R, error), a A, b B) R {
 	}
 }
 
+func Id[T any](a T) T {
+	return a
+}
+
 func Compose[A1, B1, A2, B2 any](f func(A1) (B1, error), g func(A2) (B2, error)) func(A1, A2) (B1, B2, error) {
 	var b1 B1
 	var b2 B2
