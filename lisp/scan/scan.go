@@ -42,6 +42,7 @@ func tokenTypeString(t *Token) string {
 		return "Unknown"
 	}
 }
+
 func (t *Token) String() string {
 	return tokenTypeString(t) + " " + t.Value
 }
@@ -57,15 +58,11 @@ func NewScanner(reader io.Reader) *Scanner {
 
 func (s *Scanner) NextToken() (*Token, error) {
 	if err := skipSpace(s); err != nil {
-		return nil, err
+		return eofOrError(err)
 	}
 
 	if char, _, err := s.reader.ReadRune(); err != nil {
-		if errors.Is(err, io.EOF) {
-			return &Token{Eof, ""}, nil
-		} else {
-			return nil, err
-		}
+		return eofOrError(err)
 	} else if char == '(' {
 		return &Token{LeftParen, string(char)}, nil
 	} else if char == ')' {
@@ -88,10 +85,18 @@ func (s *Scanner) NextToken() (*Token, error) {
 	}
 }
 
+func eofOrError(err error) (*Token, error) {
+	if errors.Is(err, io.EOF) {
+		return &Token{Eof, ""}, nil
+	} else {
+		return nil, err
+	}
+}
+
 func skipSpace(s *Scanner) error {
 	for {
 		if char, _, err := s.reader.ReadRune(); err != nil {
-			return maskEof(err)
+			return err
 		} else if !unicode.IsSpace(char) {
 			return s.reader.UnreadRune()
 		}
@@ -101,7 +106,11 @@ func skipSpace(s *Scanner) error {
 func readIdentifier(s *Scanner) error {
 	for {
 		if char, _, err := s.reader.ReadRune(); err != nil {
-			return maskEof(err)
+			if errors.Is(err, io.EOF) {
+				return nil
+			} else {
+				return err
+			}
 		} else if isIdentifierChar(char) || unicode.IsNumber(char) {
 			s.buffer = append(s.buffer, char)
 		} else {
@@ -112,12 +121,4 @@ func readIdentifier(s *Scanner) error {
 
 func isIdentifierChar(char rune) bool {
 	return char == '.' || char == ':' || unicode.IsLetter(char)
-}
-
-func maskEof(err error) error {
-	if errors.Is(err, io.EOF) {
-		return nil
-	} else {
-		return err
-	}
 }
