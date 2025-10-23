@@ -7,15 +7,15 @@ import (
 
 func TestNextToken(t *testing.T) {
 	reader := strings.NewReader(" (\t foo123 bar: baz.)\n")
-	tokenizer := NewScanner(reader)
+	scanner := NewScanner(reader)
 
-	if token, err := tokenizer.NextToken(); err != nil {
+	if token, err := scanner.NextToken(); err != nil {
 		t.Fatalf("err %v", err)
 	} else if expected, actual := LeftParen, token.Type; expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 
-	if token, err := tokenizer.NextToken(); err != nil {
+	if token, err := scanner.NextToken(); err != nil {
 		t.Fatalf("err %v", err)
 	} else if expected, actual := Identifier, token.Type; expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)
@@ -23,7 +23,7 @@ func TestNextToken(t *testing.T) {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 
-	if token, err := tokenizer.NextToken(); err != nil {
+	if token, err := scanner.NextToken(); err != nil {
 		t.Fatalf("err %v", err)
 	} else if expected, actual := Identifier, token.Type; expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)
@@ -31,7 +31,7 @@ func TestNextToken(t *testing.T) {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 
-	if token, err := tokenizer.NextToken(); err != nil {
+	if token, err := scanner.NextToken(); err != nil {
 		t.Fatalf("err %v", err)
 	} else if expected, actual := Identifier, token.Type; expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)
@@ -39,7 +39,7 @@ func TestNextToken(t *testing.T) {
 		t.Errorf("expected %v, actual %v", expected, actual)
 	}
 
-	if token, err := tokenizer.NextToken(); err != nil {
+	if token, err := scanner.NextToken(); err != nil {
 		t.Fatalf("err %v", err)
 	} else if expected, actual := RightParen, token.Type; expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)
@@ -48,9 +48,9 @@ func TestNextToken(t *testing.T) {
 
 func TestDot(t *testing.T) {
 	reader := strings.NewReader(".")
-	tokenizer := NewScanner(reader)
+	scanner := NewScanner(reader)
 
-	if token, err := tokenizer.NextToken(); err != nil {
+	if token, err := scanner.NextToken(); err != nil {
 		t.Fatalf("err %v", err)
 	} else if expected, actual := Dot, token.Type; expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)
@@ -59,9 +59,9 @@ func TestDot(t *testing.T) {
 
 func TestEmptyInput(t *testing.T) {
 	reader := strings.NewReader("")
-	tokenizer := NewScanner(reader)
+	scanner := NewScanner(reader)
 
-	if token, err := tokenizer.NextToken(); err != nil {
+	if token, err := scanner.NextToken(); err != nil {
 		t.Fatalf("err %v", err)
 	} else if expected, actual := Eof, token.Type; expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)
@@ -70,11 +70,46 @@ func TestEmptyInput(t *testing.T) {
 
 func TestIllegalInput(t *testing.T) {
 	reader := strings.NewReader("@")
-	tokenizer := NewScanner(reader)
+	scanner := NewScanner(reader)
 
-	if _, err := tokenizer.NextToken(); err == nil {
+	if _, err := scanner.NextToken(); err == nil {
 		t.Fatalf("expected err")
 	} else if expected, actual := "scan: illegal rune: 64", err.Error(); expected != actual {
 		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+}
+
+func TestTokenString(t *testing.T) {
+	reader := strings.NewReader("'(x . y)")
+	scanner := NewScanner(reader)
+
+	if expected, actual := "Apostrophe '", mustScan(scanner).String(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+	if expected, actual := "LeftParen (", mustScan(scanner).String(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+	if expected, actual := "Identifier x", mustScan(scanner).String(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+	if expected, actual := "Dot .", mustScan(scanner).String(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+	if expected, actual := "Identifier y", mustScan(scanner).String(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+	if expected, actual := "RightParen )", mustScan(scanner).String(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+	if expected, actual := "Eof ", mustScan(scanner).String(); expected != actual {
+		t.Errorf("expected %v, actual %v", expected, actual)
+	}
+}
+
+func mustScan(scanner *Scanner) *Token {
+	if token, err := scanner.NextToken(); err != nil {
+		panic("mustScan failed: " + err.Error())
+	} else {
+		return token
 	}
 }
