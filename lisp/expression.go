@@ -32,15 +32,8 @@ func Eq(x, y Expression) bool {
 var T Expression = Symbol("t")
 var NIL Expression = Symbol("nil")
 var QUOTE Expression = Symbol("quote")
-var ATOM Expression = Symbol("atom")
-var EQ Expression = Symbol("eq")
-var CAR Expression = Symbol("car")
-var CDR Expression = Symbol("cdr")
-var CONS Expression = Symbol("cons")
-var COND Expression = Symbol("cond")
 var LABEL Expression = Symbol("label")
 var LAMBDA Expression = Symbol("lambda")
-var DEFUN Expression = Symbol("defun")
 
 // Symbol
 type symbol struct {
