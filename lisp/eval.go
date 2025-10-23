@@ -46,9 +46,9 @@ func assoc(x, y Expression) (Expression, error) {
 	}
 }
 
-func eval(exp, env Expression) (Expression, error) {
+func eval(exp Expression, env Environment) (Expression, error) {
 	if ok := Match0("X:atom", exp); ok {
-		return assoc(exp, env)
+		return env.Lookup(exp)
 	} else if x, ok := Match1("(quote X)", exp, "X"); ok {
 		return x, nil
 	} else if x, ok := Match1("(atom X)", exp, "X"); ok {
@@ -88,29 +88,25 @@ func eval(exp, env Expression) (Expression, error) {
 	} else if c, ok := Match1("(cond . C:list)", exp, "C"); ok {
 		return evcon(c, env)
 	} else if x, y, ok := Match2("(X:atom . Y:list)", exp, "X", "Y"); ok {
-		if f, err := assoc(x, env); err != nil {
+		if f, err := env.Lookup(x); err != nil {
 			return nil, err
 		} else {
 			return eval(Cons(f, y), env)
 		}
 	} else if n, f, p, ok := Match3("((label N F) . P:list)", exp, "N", "F", "P"); ok {
-		return eval(Cons(f, p), Cons(List(n, Must(Car, exp)), env))
+		return eval(Cons(f, p), Extend(n, Must(Car, exp), env))
 	} else if p, b, x, ok := Match3("((lambda P B) . X:list)", exp, "P", "B", "X"); ok {
 		if v0, err := evlis(x, env); err != nil {
 			return nil, err
-		} else if v1, err := pair(p, v0); err != nil {
-			return nil, err
-		} else if v2, err := Append(v1, env); err != nil {
-			return nil, err
 		} else {
-			return eval(b, v2)
+			return eval(b, ExtendList(p, v0, env))
 		}
 	} else {
 		return nil, fmt.Errorf("eval: illegal expression: %v", exp)
 	}
 }
 
-func evcon(clauses, env Expression) (Expression, error) {
+func evcon(clauses Expression, env Environment) (Expression, error) {
 	if test, consequent, alternates, ok := Match3("((TEST CONSEQUENT) . ALTERNATES:list)", clauses, "TEST", "CONSEQUENT", "ALTERNATES"); ok {
 		if t, err := eval(test, env); err != nil {
 			return nil, err
@@ -124,7 +120,7 @@ func evcon(clauses, env Expression) (Expression, error) {
 	}
 }
 
-func evlis(exps, env Expression) (Expression, error) {
+func evlis(exps Expression, env Environment) (Expression, error) {
 	if exps == NIL {
 		return NIL, nil
 	} else if car_m, cdr_m, err := Uncons(exps, "evlis1"); err != nil {
@@ -138,6 +134,6 @@ func evlis(exps, env Expression) (Expression, error) {
 	}
 }
 
-func Eval(exp, env Expression) (Expression, error) {
+func Eval(exp Expression, env Environment) (Expression, error) {
 	return eval(exp, env)
 }

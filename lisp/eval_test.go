@@ -3,18 +3,23 @@ package lisp
 import "testing"
 
 func TestEval(t *testing.T) {
-	for _, in := range [][3]string{
-		{"a", "x", "((x a))"},
-		{"a", "(quote a)", "()"},
-		{"t", "(atom 'a)", "()"},
-		{"nil", "(atom '(a b))", "()"},
-		{"t", "(eq 'a 'a)", "()"},
-		{"nil", "(eq 'a 'b)", "()"},
-		{"a", "(car '(a . b))", "()"},
-		{"b", "(cdr '(a . b))", "()"},
-		{"(a . b)", "(cons 'a 'b)", "()"},
-		{"no", "(cond ((atom '(a b)) 'yes) ('t 'no))", "()"},
-		{"(a . b)", "(kons 'a 'b)", "((kons cons))"},
+	env := NewEnvironment()
+	for _, in := range []struct {
+		res string
+		exp string
+		env Environment
+	}{
+		{"a", "x", Extend(Symbol("x"), Symbol("a"), env)},
+		{"a", "(quote a)", env},
+		{"t", "(atom 'a)", env},
+		{"nil", "(atom '(a b))", env},
+		{"t", "(eq 'a 'a)", env},
+		{"nil", "(eq 'a 'b)", env},
+		{"a", "(car '(a . b))", env},
+		{"b", "(cdr '(a . b))", env},
+		{"(a . b)", "(cons 'a 'b)", env},
+		{"no", "(cond ((atom '(a b)) 'yes) ('t 'no))", env},
+		{"(a . b)", "(kons 'a 'b)", Extend(Symbol("kons"), Symbol("cons"), env)},
 		{
 			`(a m (a m c) d)`,
 			`((label subst 
@@ -24,12 +29,12 @@ func TestEval(t *testing.T) {
                                     ('t z)))
                              ('t (cons (subst x y (car z))
                                        (subst x y (cdr z))))))) 'm 'b '(a b (a b c) d))`,
-			`()`,
+			env,
 		},
 	} {
 		if expected, actual :=
-			Must(Read, in[0]),
-			Must2(Eval, Must(Read, in[1]), Must(Read, in[2])); expected.String() != actual.String() {
+			Must(Read, in.res),
+			Must2(Eval, Must(Read, in.exp), in.env); expected.String() != actual.String() {
 			t.Errorf("expected %v, actual %v", expected, actual)
 		}
 	}
