@@ -4,17 +4,16 @@ import (
 	"fmt"
 )
 
-func Repl(reader *Reader) {
-	env := NewEnvironment()
+func Repl(reader *Reader, env Environment) Environment {
 	for {
 		if expression, err := reader.ReadValue(); err != nil {
 			fmt.Printf("read failed: %v\n", err.Error())
-			return
+			return env
 		} else if expression == nil {
-			return
+			return env
 		} else if result, bindings, err := evalTopLevel(expression, env); err != nil {
 			fmt.Printf("invalid top level expression: %v\n", err.Error())
-			return
+			return env
 		} else {
 			env = bindings
 			if result != nil {

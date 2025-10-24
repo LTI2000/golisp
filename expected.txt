@@ -1,3 +1,4 @@
+loading eval.lisp
 ;; welcome to golisp
 ; (a m (a m c) d)
 ; metacircular.eval.
