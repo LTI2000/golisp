@@ -1,4 +1,5 @@
 loading eval.lisp
+loading prelude.lisp
 ;; welcome to golisp
 ; (a m (a m c) d)
 ; metacircular.eval.
