@@ -134,7 +134,7 @@ func List(slice ...Expression) Expression {
 	return ListMapped(Id, slice...)
 }
 
-// create a (possibly empty) list from an expression slice. Uses f to map elements to the source type T.
+// create a (possibly empty) list from an expression slice. Uses f to map elements from the source type T.
 func ListMapped[T any](f func(T) Expression, slice ...T) (list Expression) {
 	list = NIL
 	for i := len(slice) - 1; i >= 0; i-- {
