@@ -18,7 +18,7 @@ echo "END TO END TEST"
 echo "################"
 current_dir=..
 pushd test
-cat $current_dir/lisp-src/test/test.lisp $current_dir/lisp-src/test/eval_test.lisp | $current_dir/golisp > actual.txt
+cat lisp-src/test.lisp lisp-src/eval_test.lisp | $current_dir/golisp > actual.txt
 diff -q expected.txt actual.txt
 status=$?
 if [ $status -gt 0 ]; then

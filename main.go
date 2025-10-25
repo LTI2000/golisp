@@ -11,13 +11,13 @@ import (
 	"github.com/LTI2000/golisp/lisp/scan"
 )
 
-//go:embed lisp-src/main/*
+//go:embed lisp-src/*
 var lisp_src embed.FS
 
 func main() {
 	env := lisp.NewEnvironment()
 
-	lisp_fs, _ := fs.Sub(lisp_src, "lisp-src/main")
+	lisp_fs, _ := fs.Sub(lisp_src, "lisp-src")
 	fs.WalkDir(lisp_fs, ".",
 		func(path string, d fs.DirEntry, err error) error {
 			if !d.IsDir() {
